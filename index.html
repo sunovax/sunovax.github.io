@@ -1,171 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SunovaX Solar Charging Station</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-    }
-    .container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(14px);
-      border-radius: 22px;
-      padding: 30px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-      text-align: center;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-      font-weight: 700;
-      color: #ffd84d;
-    }
-    h2 {
-      font-size: 16px;
-      font-weight: 400;
-      opacity: 0.9;
-      margin-bottom: 25px;
-    }
-    .step { display: none; }
-    .step.active { display: block; }
-    .btn {
-      margin-top: 18px;
-      padding: 14px 22px;
-      border: none;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #ffd84d, #ffb703);
-      color: #000;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
-    .btn:active { transform: scale(0.98); }
-    .input-box {
-      margin: 12px 0;
-      text-align: left;
-    }
-    label {
-      font-size: 13px;
-      opacity: 0.85;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 6px;
-      font-size: 15px;
-    }
-    .info-box {
-      margin-top: 15px;
-      padding: 14px;
-      background: rgba(0,0,0,0.25);
-      border-radius: 14px;
-      font-size: 15px;
-    }
-    .footer {
-      margin-top: 20px;
-      font-size: 12px;
-      opacity: 0.7;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SunovaX Solar Charging</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+.container{
+  max-width:420px;
+  width:100%;
+  padding:30px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(14px);
+  border-radius:22px;
+  text-align:center;
+}
+.step{ display:none; }
+.step.active{ display:block; }
+.btn{
+  margin-top:15px;
+  padding:14px;
+  width:100%;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#ffd84d,#ffb703);
+  font-weight:600;
+  cursor:pointer;
+}
+.admin-btn{
+  background:#ff5252;
+  color:white;
+}
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-top:6px;
+}
+.info-box{
+  background:rgba(0,0,0,0.25);
+  padding:14px;
+  border-radius:14px;
+  margin-top:14px;
+}
+h1{ color:#ffd84d; }
+</style>
 </head>
+
 <body>
-  <div class="container">
+<div class="container">
 
-    <!-- Step 1 -->
-    <div class="step active" id="step1">
-      <h1>SunovaX ☀️</h1>
-      <h2>Welcome to the Solar Phone Charging Station</h2>
-      <button class="btn" onclick="nextStep(2)">Start Charging</button>
-    </div>
+<!-- STEP 1 -->
+<div class="step active" id="step1">
+  <h1>SunovaX ☀️</h1>
+  <p>Solar Phone Charging Station</p>
+  <button class="btn" onclick="nextStep(2)">Start</button>
+</div>
 
-    <!-- Step 2 -->
-    <div class="step" id="step2">
-      <h1>Battery Details</h1>
-      <div class="input-box">
-        <label>Current Phone Charge (%)</label>
-        <input type="number" id="currentCharge" placeholder="e.g. 35" min="0" max="100">
-      </div>
-      <div class="input-box">
-        <label>Required Charge (%)</label>
-        <input type="number" id="targetCharge" placeholder="e.g. 80" min="1" max="100">
-      </div>
-      <button class="btn" onclick="calculateDetails()">Continue</button>
-    </div>
+<!-- STEP 2 -->
+<div class="step" id="step2">
+  <h1>Battery Details</h1>
+  <label>Current Charge (%)</label>
+  <input type="number" id="current" min="0" max="100">
+  <label>Required Charge (%)</label>
+  <input type="number" id="target" min="1" max="100">
+  <button class="btn" onclick="calculate()">Continue</button>
+</div>
 
-    <!-- Step 3 : Payment -->
-    <div class="step" id="step3">
-      <h1>Payment</h1>
-      <div class="info-box" id="paymentResult"></div>
-      <button class="btn" onclick="nextStep(4)">Paid</button>
-    </div>
+<!-- STEP 3 : PAYMENT -->
+<div class="step" id="step3">
+  <h1>Payment</h1>
+  <div class="info-box" id="payInfo"></div>
 
-    <!-- Step 4 -->
-    <div class="step" id="step4">
-      <h1>Plug In Your Phone</h1>
-      <div class="info-box">
-        Please connect your phone to the charging cable provided at the station.
-        <br><br>
-        Charging is powered by clean solar energy 🌱
-      </div>
-      <button class="btn" onclick="nextStep(5)">Done</button>
-    </div>
+  <!-- USER -->
+  <button class="btn" onclick="showAdmin()">I have paid</button>
 
-    <!-- Step 5 -->
-    <div class="step" id="step5">
-      <h1>Thank You!</h1>
-      <div class="info-box">
-        Thank you for using <b>SunovaX Solar Charging Station</b>.
-        <br><br>
-        You just charged your phone using renewable solar power ☀️🔋
-      </div>
-      <div class="footer">SunovaX © 2026 | Clean • Smart • Sustainable</div>
-    </div>
+  <!-- ADMIN -->
+  <button class="btn admin-btn" id="adminBtn" style="display:none"
+          onclick="nextStep(4)">
+    PAID (Admin Confirm)
+  </button>
+</div>
 
+<!-- STEP 4 -->
+<div class="step" id="step4">
+  <h1>Plug In Your Phone</h1>
+  <div class="info-box">
+    Payment confirmed ✅<br><br>
+    Please plug in your phone now.
   </div>
+  <button class="btn" onclick="nextStep(5)">Done</button>
+</div>
 
-  <script>
-    function nextStep(step) {
-      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-      document.getElementById('step' + step).classList.add('active');
-    }
+<!-- STEP 5 -->
+<div class="step" id="step5">
+  <h1>Thank You!</h1>
+  <p>Powered by Solar Energy ☀️🔋</p>
+</div>
 
-    function calculateDetails() {
-      const current = parseInt(document.getElementById('currentCharge').value);
-      const target = parseInt(document.getElementById('targetCharge').value);
+</div>
 
-      if (isNaN(current) || isNaN(target) || current >= target) {
-        alert('Please enter valid battery percentages');
-        return;
-      }
+<script>
+function nextStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+}
 
-      const diff = target - current;
-      const minutesPerPercent = 1.5;
-      const totalMinutes = Math.round(diff * minutesPerPercent);
-      const payment = diff; // ₹1 per 1%
+function calculate(){
+  const c = parseInt(current.value);
+  const t = parseInt(target.value);
+  if(isNaN(c)||isNaN(t)||c>=t){
+    alert("Enter valid charge values");
+    return;
+  }
+  const diff = t - c;
+  payInfo.innerHTML =
+    `Charge needed: <b>${diff}%</b><br><br>
+     Amount to pay: <b>₹${diff}/-</b><br>
+     (₹1 per 1%)`;
+  nextStep(3);
+}
 
-      document.getElementById('paymentResult').innerHTML =
-        `Charge needed: <b>${diff}%</b><br>` +
-        `Estimated time: <b>${totalMinutes} minutes</b><br><br>` +
-        `<b>Pay ₹${payment}/-</b><br>(₹1 per 1%)`;
-
-      nextStep(3);
-    }
-  </script>
+function showAdmin(){
+  document.getElementById("adminBtn").style.display="block";
+}
+</script>
 </body>
 </html>
-
