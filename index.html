@@ -11,127 +11,171 @@
 body{
   margin:0;min-height:100vh;
   display:flex;justify-content:center;align-items:center;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  background:radial-gradient(circle at top,#2c5364,#0f2027);
   color:#fff;overflow:hidden;
 }
 
-/* ---------- SPLASH SCREEN ---------- */
+/* ---------- BACKGROUND FLOAT ---------- */
+.bg-glow{
+  position:fixed;inset:0;pointer-events:none;
+}
+.bg-glow span{
+  position:absolute;width:120px;height:120px;
+  background:rgba(255,216,77,0.12);
+  border-radius:50%;
+  animation:float 12s infinite ease-in-out;
+}
+.bg-glow span:nth-child(1){top:10%;left:10%}
+.bg-glow span:nth-child(2){bottom:20%;right:15%;animation-delay:3s}
+.bg-glow span:nth-child(3){top:50%;right:40%;animation-delay:6s}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-40px)}
+}
+
+/* ---------- SPLASH ---------- */
 #splash{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  position:fixed;inset:0;
+  display:flex;justify-content:center;align-items:center;
+  background:radial-gradient(circle,#203a43,#0f2027);
   z-index:999;
   animation:fadeOut 1s ease forwards;
-  animation-delay:2.2s;
+  animation-delay:2.3s;
 }
-
 .splash-logo{
-  width:220px;
-  animation:logoZoom 2s ease;
+  width:240px;
+  animation:splashZoom 2.2s ease;
 }
-
-@keyframes logoZoom{
-  0%{opacity:0;transform:scale(0.6)}
-  60%{opacity:1;transform:scale(1.1)}
+@keyframes splashZoom{
+  0%{opacity:0;transform:scale(.5)}
+  60%{opacity:1;transform:scale(1.15)}
   100%{transform:scale(1)}
 }
-
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
 
 /* ---------- CONTAINER ---------- */
 .container{
   max-width:420px;width:100%;padding:30px;
-  background:rgba(255,255,255,0.08);
+  background:rgba(255,255,255,.08);
   backdrop-filter:blur(14px);
-  border-radius:22px;text-align:center;
-  box-shadow:0 20px 40px rgba(0,0,0,0.35);
-  animation:pop 0.6s ease;
+  border-radius:24px;text-align:center;
+  box-shadow:0 25px 50px rgba(0,0,0,.4);
   position:relative;
+  animation:containerIn .7s ease;
 }
-
-@keyframes pop{
-  from{opacity:0;transform:scale(.95)}
+@keyframes containerIn{
+  from{opacity:0;transform:scale(.9)}
   to{opacity:1}
 }
 
 /* ---------- WATERMARK ---------- */
 .watermark{
-  position:absolute;
-  inset:0;
-  background:url("logo.png") center/200px no-repeat;
-  opacity:0.05;
-  pointer-events:none;
-}
-
-/* ---------- LOGO SMALL (WELCOME) ---------- */
-.logo-small{
-  width:90px;
-  margin-bottom:10px;
+  position:absolute;inset:0;
+  background:url("logo.png") center/220px no-repeat;
+  opacity:.04;pointer-events:none;
 }
 
 /* ---------- STEPS ---------- */
-.step{display:none;opacity:0;transform:translateY(20px)}
-.step.active{display:block;animation:step .45s ease forwards}
-
-@keyframes step{
+.step{
+  display:none;
+  opacity:0;
+  transform:translateX(40px);
+}
+.step.active{
+  display:block;
+  animation:stepSlide .5s ease forwards;
+}
+@keyframes stepSlide{
   to{opacity:1;transform:none}
+}
+
+/* ---------- LOGO ---------- */
+.logo-small{
+  width:95px;
+  margin-bottom:12px;
+  animation:logoFloat 3s ease-in-out infinite;
+}
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
 }
 
 h1{color:#ffd84d;margin-bottom:6px}
 
 /* ---------- BUTTON ---------- */
 .btn{
-  margin-top:16px;
-  padding:14px;
-  width:100%;
-  border:none;
-  border-radius:14px;
+  margin-top:16px;padding:14px;width:100%;
+  border:none;border-radius:16px;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
-  font-weight:600;
-  cursor:pointer;
+  font-weight:600;cursor:pointer;
+  position:relative;overflow:hidden;
   transition:.25s;
+}
+.btn::after{
+  content:"";
+  position:absolute;inset:0;
+  background:rgba(255,255,255,.25);
+  opacity:0;transition:.25s;
 }
 .btn:hover{
   transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(255,216,77,.4)
+  box-shadow:0 10px 25px rgba(255,216,77,.4);
 }
-.btn:active{transform:scale(.96)}
+.btn:active::after{opacity:1}
 
+/* ---------- INPUT ---------- */
 input{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
+  width:100%;padding:12px;
+  border:none;border-radius:12px;
   margin-top:6px;
   outline:none;
+  transition:.25s;
+}
+input:focus{
+  transform:translateY(-2px);
+  box-shadow:0 0 0 2px rgba(255,216,77,.7);
 }
 
+/* ---------- INFO BOX ---------- */
 .info-box{
   background:rgba(0,0,0,.25);
-  padding:14px;
-  border-radius:14px;
+  padding:14px;border-radius:14px;
   margin-top:14px;
+  animation:fadeUp .4s ease;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
 }
 
 /* ---------- PIN STATES ---------- */
 .error{color:#ff6b6b;margin-top:10px}
 .locked{color:#ff9f1c;margin-top:10px}
+
+/* ---------- PLUG PULSE ---------- */
+.pulse{
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 rgba(255,216,77,.6)}
+  70%{box-shadow:0 0 30px rgba(255,216,77,0)}
+  100%{box-shadow:0 0 0}
+}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <img src="logo.png" class="splash-logo" alt="SunovaX Logo">
+<div class="bg-glow">
+  <span></span><span></span><span></span>
 </div>
 
-<!-- MAIN APP -->
+<!-- SPLASH -->
+<div id="splash">
+  <img src="logo.png" class="splash-logo">
+</div>
+
 <div class="container">
 <div class="watermark"></div>
 
@@ -146,10 +190,8 @@ input{
 <!-- STEP 2 -->
 <div class="step" id="step2">
   <h1>Battery Details</h1>
-  <label>Current Charge (%)</label>
-  <input type="number" id="current">
-  <label>Required Charge (%)</label>
-  <input type="number" id="target">
+  <input type="number" id="current" placeholder="Current charge %">
+  <input type="number" id="target" placeholder="Required charge %">
   <button class="btn" onclick="calculate()">Continue</button>
 </div>
 
@@ -170,9 +212,9 @@ input{
 <!-- STEP 4 -->
 <div class="step" id="step4">
   <h1>Plug In</h1>
-  <div class="info-box">
+  <div class="info-box pulse">
     Payment confirmed ✅<br><br>
-    Please plug in your phone.
+    Plug in your phone now.
   </div>
   <button class="btn" onclick="finish()">Done</button>
 </div>
@@ -197,30 +239,21 @@ function nextStep(n){
 
 function calculate(){
   const c=parseInt(current.value),t=parseInt(target.value);
-  if(isNaN(c)||isNaN(t)||c>=t){
-    alert("Please enter valid values");
-    return;
-  }
+  if(isNaN(c)||isNaN(t)||c>=t){alert("Invalid values");return}
   const diff=t-c;
-  payInfo.innerHTML=
-    `Charge needed: <b>${diff}%</b><br><br>
-     Pay amount: <b>₹${diff}/-</b><br>
-     (₹1 per 1%)`;
+  payInfo.innerHTML=`Charge: <b>${diff}%</b><br><br>Pay: <b>₹${diff}/-</b>`;
   nextStep(3);
 }
 
-function showPin(){
-  if(!locked) pinBox.style.display="block";
-}
+function showPin(){ if(!locked) pinBox.style.display="block"; }
 
 function verifyPin(){
-  if(locked) return;
+  if(locked)return;
   if(pinInput.value===ADMIN_PIN){
-    attempts=0;
-    nextStep(4);
+    attempts=0;nextStep(4);
   }else{
     attempts++;
-    pinError.textContent=`Wrong PIN. Attempts left: ${MAX_ATTEMPTS-attempts}`;
+    pinError.textContent=`Wrong PIN (${MAX_ATTEMPTS-attempts} left)`;
     if(attempts>=MAX_ATTEMPTS){
       locked=true;
       pinLocked.textContent="Too many attempts. Refresh page.";
