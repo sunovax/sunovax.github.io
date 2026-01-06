@@ -7,139 +7,112 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
-}
+*{box-sizing:border-box;font-family:'Poppins',sans-serif}
 body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  margin:0;min-height:100vh;
+  display:flex;justify-content:center;align-items:center;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#fff;
-  overflow:hidden;
+  color:#fff;overflow:hidden;
 }
 
 /* ---------- CONTAINER ---------- */
 .container{
-  max-width:420px;
-  width:100%;
-  padding:30px;
+  max-width:420px;width:100%;padding:30px;
   background:rgba(255,255,255,0.08);
   backdrop-filter:blur(14px);
-  border-radius:22px;
-  text-align:center;
+  border-radius:22px;text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,0.35);
-  animation:containerPop 0.6s ease;
+  animation:pop 0.6s ease;
+  position:relative;
+}
+@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1}}
+
+/* ---------- WATERMARK ---------- */
+.watermark{
+  position:absolute;inset:0;
+  background:url("logo.png") center/200px no-repeat;
+  opacity:0.05;pointer-events:none;
 }
 
-@keyframes containerPop{
-  from{transform:scale(0.95);opacity:0;}
-  to{transform:scale(1);opacity:1;}
+/* ---------- LOGO + SOLAR RAYS ---------- */
+.logo-wrap{
+  position:relative;width:140px;height:140px;
+  margin:0 auto 10px;
+}
+.rays{
+  position:absolute;inset:0;
+  background:conic-gradient(from 0deg,
+    rgba(255,216,77,.4),
+    transparent 30%,
+    rgba(255,216,77,.4),
+    transparent 60%,
+    rgba(255,216,77,.4));
+  border-radius:50%;
+  animation:spin 8s linear infinite;
+  filter:blur(1px);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.logo-circle{
+  position:absolute;inset:18px;
+  background:rgba(0,0,0,.35);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 25px rgba(255,216,77,.8);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 25px rgba(255,216,77,.6)}
+  50%{box-shadow:0 0 45px rgba(255,216,77,1)}
 }
 
-/* ---------- LOGO ---------- */
-.logo{
-  width:90px;
-  margin-bottom:12px;
-  animation:logoFade 0.8s ease;
-}
-
-@keyframes logoFade{
-  from{opacity:0;transform:scale(0.8);}
-  to{opacity:1;transform:scale(1);}
-}
+.logo-circle img{width:70px}
 
 /* ---------- STEPS ---------- */
-.step{
-  display:none;
-  opacity:0;
-  transform:translateY(20px);
-}
-.step.active{
-  display:block;
-  animation:stepIn 0.45s ease forwards;
-}
+.step{display:none;opacity:0;transform:translateY(20px)}
+.step.active{display:block;animation:step .45s ease forwards}
+@keyframes step{to{opacity:1;transform:none}}
 
-@keyframes stepIn{
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-/* ---------- TEXT ---------- */
-h1{color:#ffd84d;margin-bottom:8px;}
-p{opacity:0.9}
+h1{color:#ffd84d;margin-bottom:6px}
 
 /* ---------- BUTTON ---------- */
 .btn{
-  margin-top:16px;
-  padding:14px;
-  width:100%;
-  border:none;
-  border-radius:14px;
+  margin-top:16px;padding:14px;width:100%;
+  border:none;border-radius:14px;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.25s ease;
+  font-weight:600;cursor:pointer;
+  transition:.25s;
 }
-.btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(255,216,77,0.35);
-}
-.btn:active{
-  transform:scale(0.96);
-}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,216,77,.4)}
+.btn:active{transform:scale(.96)}
 
-/* ---------- INPUT ---------- */
 input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  margin-top:6px;
-  outline:none;
-  transition:box-shadow 0.25s ease;
+  width:100%;padding:12px;border:none;border-radius:10px;
+  margin-top:6px;outline:none;
 }
-input:focus{
-  box-shadow:0 0 0 2px rgba(255,216,77,0.6);
-}
-
-/* ---------- INFO BOX ---------- */
 .info-box{
-  background:rgba(0,0,0,0.25);
-  padding:14px;
-  border-radius:14px;
-  margin-top:14px;
-  animation:fadeUp 0.4s ease;
-}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(10px);}
-  to{opacity:1;transform:translateY(0);}
+  background:rgba(0,0,0,.25);
+  padding:14px;border-radius:14px;margin-top:14px;
 }
 
 /* ---------- PIN STATES ---------- */
-.error{color:#ff6b6b;margin-top:10px;animation:shake 0.3s;}
-.locked{color:#ff9f1c;margin-top:10px;}
-
-@keyframes shake{
-  0%,100%{transform:translateX(0);}
-  25%{transform:translateX(-5px);}
-  75%{transform:translateX(5px);}
-}
+.error{color:#ff6b6b;margin-top:10px}
+.locked{color:#ff9f1c;margin-top:10px}
 </style>
 </head>
 
 <body>
 <div class="container">
+<div class="watermark"></div>
 
 <!-- STEP 1 -->
 <div class="step active" id="step1">
-  <img src="logo.png" alt="SunovaX Logo" class="logo">
+  <div class="logo-wrap">
+    <div class="rays"></div>
+    <div class="logo-circle">
+      <img src="logo.png">
+    </div>
+  </div>
   <h1>SunovaX ☀️</h1>
   <p>Solar Phone Charging Station</p>
   <button class="btn" onclick="nextStep(2)">Start</button>
@@ -149,9 +122,9 @@ input:focus{
 <div class="step" id="step2">
   <h1>Battery Details</h1>
   <label>Current Charge (%)</label>
-  <input type="number" id="current" min="0" max="100">
+  <input type="number" id="current">
   <label>Required Charge (%)</label>
-  <input type="number" id="target" min="1" max="100">
+  <input type="number" id="target">
   <button class="btn" onclick="calculate()">Continue</button>
 </div>
 
@@ -162,7 +135,7 @@ input:focus{
   <button class="btn" onclick="showPin()">Paid</button>
 
   <div id="pinBox" style="display:none">
-    <input type="password" id="pinInput" placeholder="Enter admin PIN">
+    <input type="password" id="pinInput" placeholder="Admin PIN">
     <button class="btn" onclick="verifyPin()">Confirm</button>
     <div class="error" id="pinError"></div>
     <div class="locked" id="pinLocked"></div>
@@ -171,10 +144,10 @@ input:focus{
 
 <!-- STEP 4 -->
 <div class="step" id="step4">
-  <h1>Plug In Your Phone</h1>
+  <h1>Plug In</h1>
   <div class="info-box">
     Payment confirmed ✅<br><br>
-    Please plug in your phone now.
+    Please plug in your phone.
   </div>
   <button class="btn" onclick="finish()">Done</button>
 </div>
@@ -182,16 +155,15 @@ input:focus{
 <!-- STEP 5 -->
 <div class="step" id="step5">
   <h1>Thank You!</h1>
-  <p>Powered by Clean Solar Energy ☀️🔋</p>
+  <p>Powered by Solar Energy ☀️🔋</p>
 </div>
 
 </div>
 
 <script>
-const ADMIN_PIN = "2026";
-let attempts = 0;
-const MAX_ATTEMPTS = 5;
-let locked = false;
+const ADMIN_PIN="2026";
+let attempts=0,locked=false;
+const MAX_ATTEMPTS=5;
 
 function nextStep(n){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
@@ -199,38 +171,28 @@ function nextStep(n){
 }
 
 function calculate(){
-  const c = parseInt(current.value);
-  const t = parseInt(target.value);
-  if(isNaN(c)||isNaN(t)||c>=t){
-    alert("Please enter valid charge values");
-    return;
-  }
-  const diff = t - c;
-  payInfo.innerHTML =
-    `Charge required: <b>${diff}%</b><br><br>
-     Amount to pay: <b>₹${diff}/-</b><br>
+  const c=parseInt(current.value),t=parseInt(target.value);
+  if(isNaN(c)||isNaN(t)||c>=t){alert("Invalid values");return}
+  const diff=t-c;
+  payInfo.innerHTML=
+    `Charge needed: <b>${diff}%</b><br><br>
+     Pay amount: <b>₹${diff}/-</b><br>
      (₹1 per 1%)`;
   nextStep(3);
 }
 
-function showPin(){
-  if(locked) return;
-  pinBox.style.display="block";
-}
+function showPin(){if(!locked)pinBox.style.display="block"}
 
 function verifyPin(){
-  if(locked) return;
-  if(pinInput.value === ADMIN_PIN){
-    attempts = 0;
-    pinInput.value = "";
-    nextStep(4);
+  if(locked)return;
+  if(pinInput.value===ADMIN_PIN){
+    attempts=0;nextStep(4);
   }else{
     attempts++;
-    pinError.innerText =
-      `Incorrect PIN. Attempts left: ${MAX_ATTEMPTS - attempts}`;
-    if(attempts >= MAX_ATTEMPTS){
-      locked = true;
-      pinLocked.innerText = "Too many attempts. Refresh page.";
+    pinError.textContent=`Wrong PIN. Attempts left: ${MAX_ATTEMPTS-attempts}`;
+    if(attempts>=MAX_ATTEMPTS){
+      locked=true;
+      pinLocked.textContent="Too many attempts. Refresh page.";
     }
   }
 }
@@ -241,17 +203,13 @@ function finish(){
 }
 
 function resetAll(){
-  attempts = 0;
-  locked = false;
-  pinError.innerText = "";
-  pinLocked.innerText = "";
+  attempts=0;locked=false;
   pinBox.style.display="none";
-  pinInput.value = "";
-  current.value = "";
-  target.value = "";
+  pinError.textContent="";
+  pinLocked.textContent="";
+  pinInput.value=current.value=target.value="";
   nextStep(1);
 }
 </script>
-
 </body>
 </html>
