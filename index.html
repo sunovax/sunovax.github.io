@@ -15,6 +15,34 @@ body{
   color:#fff;overflow:hidden;
 }
 
+/* ---------- SPLASH SCREEN ---------- */
+#splash{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  z-index:999;
+  animation:fadeOut 1s ease forwards;
+  animation-delay:2.2s;
+}
+
+.splash-logo{
+  width:220px;
+  animation:logoZoom 2s ease;
+}
+
+@keyframes logoZoom{
+  0%{opacity:0;transform:scale(0.6)}
+  60%{opacity:1;transform:scale(1.1)}
+  100%{transform:scale(1)}
+}
+
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden}
+}
+
 /* ---------- CONTAINER ---------- */
 .container{
   max-width:420px;width:100%;padding:30px;
@@ -25,74 +53,69 @@ body{
   animation:pop 0.6s ease;
   position:relative;
 }
-@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1}}
+
+@keyframes pop{
+  from{opacity:0;transform:scale(.95)}
+  to{opacity:1}
+}
 
 /* ---------- WATERMARK ---------- */
 .watermark{
-  position:absolute;inset:0;
+  position:absolute;
+  inset:0;
   background:url("logo.png") center/200px no-repeat;
-  opacity:0.05;pointer-events:none;
+  opacity:0.05;
+  pointer-events:none;
 }
 
-/* ---------- LOGO + SOLAR RAYS ---------- */
-.logo-wrap{
-  position:relative;width:140px;height:140px;
-  margin:0 auto 10px;
+/* ---------- LOGO SMALL (WELCOME) ---------- */
+.logo-small{
+  width:90px;
+  margin-bottom:10px;
 }
-.rays{
-  position:absolute;inset:0;
-  background:conic-gradient(from 0deg,
-    rgba(255,216,77,.4),
-    transparent 30%,
-    rgba(255,216,77,.4),
-    transparent 60%,
-    rgba(255,216,77,.4));
-  border-radius:50%;
-  animation:spin 8s linear infinite;
-  filter:blur(1px);
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.logo-circle{
-  position:absolute;inset:18px;
-  background:rgba(0,0,0,.35);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 25px rgba(255,216,77,.8);
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{
-  0%,100%{box-shadow:0 0 25px rgba(255,216,77,.6)}
-  50%{box-shadow:0 0 45px rgba(255,216,77,1)}
-}
-
-.logo-circle img{width:70px}
 
 /* ---------- STEPS ---------- */
 .step{display:none;opacity:0;transform:translateY(20px)}
 .step.active{display:block;animation:step .45s ease forwards}
-@keyframes step{to{opacity:1;transform:none}}
+
+@keyframes step{
+  to{opacity:1;transform:none}
+}
 
 h1{color:#ffd84d;margin-bottom:6px}
 
 /* ---------- BUTTON ---------- */
 .btn{
-  margin-top:16px;padding:14px;width:100%;
-  border:none;border-radius:14px;
+  margin-top:16px;
+  padding:14px;
+  width:100%;
+  border:none;
+  border-radius:14px;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
-  font-weight:600;cursor:pointer;
+  font-weight:600;
+  cursor:pointer;
   transition:.25s;
 }
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,216,77,.4)}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(255,216,77,.4)
+}
 .btn:active{transform:scale(.96)}
 
 input{
-  width:100%;padding:12px;border:none;border-radius:10px;
-  margin-top:6px;outline:none;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  margin-top:6px;
+  outline:none;
 }
+
 .info-box{
   background:rgba(0,0,0,.25);
-  padding:14px;border-radius:14px;margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  margin-top:14px;
 }
 
 /* ---------- PIN STATES ---------- */
@@ -102,17 +125,19 @@ input{
 </head>
 
 <body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img src="logo.png" class="splash-logo" alt="SunovaX Logo">
+</div>
+
+<!-- MAIN APP -->
 <div class="container">
 <div class="watermark"></div>
 
 <!-- STEP 1 -->
 <div class="step active" id="step1">
-  <div class="logo-wrap">
-    <div class="rays"></div>
-    <div class="logo-circle">
-      <img src="logo.png">
-    </div>
-  </div>
+  <img src="logo.png" class="logo-small">
   <h1>SunovaX ☀️</h1>
   <p>Solar Phone Charging Station</p>
   <button class="btn" onclick="nextStep(2)">Start</button>
@@ -172,7 +197,10 @@ function nextStep(n){
 
 function calculate(){
   const c=parseInt(current.value),t=parseInt(target.value);
-  if(isNaN(c)||isNaN(t)||c>=t){alert("Invalid values");return}
+  if(isNaN(c)||isNaN(t)||c>=t){
+    alert("Please enter valid values");
+    return;
+  }
   const diff=t-c;
   payInfo.innerHTML=
     `Charge needed: <b>${diff}%</b><br><br>
@@ -181,12 +209,15 @@ function calculate(){
   nextStep(3);
 }
 
-function showPin(){if(!locked)pinBox.style.display="block"}
+function showPin(){
+  if(!locked) pinBox.style.display="block";
+}
 
 function verifyPin(){
-  if(locked)return;
+  if(locked) return;
   if(pinInput.value===ADMIN_PIN){
-    attempts=0;nextStep(4);
+    attempts=0;
+    nextStep(4);
   }else{
     attempts++;
     pinError.textContent=`Wrong PIN. Attempts left: ${MAX_ATTEMPTS-attempts}`;
@@ -211,5 +242,6 @@ function resetAll(){
   nextStep(1);
 }
 </script>
+
 </body>
 </html>
