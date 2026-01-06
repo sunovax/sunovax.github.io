@@ -7,7 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;font-family:'Poppins',sans-serif;}
+*{
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
 body{
   margin:0;
   min-height:100vh;
@@ -16,7 +19,10 @@ body{
   align-items:center;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
+  overflow:hidden;
 }
+
+/* ---------- CONTAINER ---------- */
 .container{
   max-width:420px;
   width:100%;
@@ -25,9 +31,50 @@ body{
   backdrop-filter:blur(14px);
   border-radius:22px;
   text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,0.35);
+  animation:containerPop 0.6s ease;
 }
-.step{display:none;}
-.step.active{display:block;}
+
+@keyframes containerPop{
+  from{transform:scale(0.95);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* ---------- LOGO ---------- */
+.logo{
+  width:90px;
+  margin-bottom:12px;
+  animation:logoFade 0.8s ease;
+}
+
+@keyframes logoFade{
+  from{opacity:0;transform:scale(0.8);}
+  to{opacity:1;transform:scale(1);}
+}
+
+/* ---------- STEPS ---------- */
+.step{
+  display:none;
+  opacity:0;
+  transform:translateY(20px);
+}
+.step.active{
+  display:block;
+  animation:stepIn 0.45s ease forwards;
+}
+
+@keyframes stepIn{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* ---------- TEXT ---------- */
+h1{color:#ffd84d;margin-bottom:8px;}
+p{opacity:0.9}
+
+/* ---------- BUTTON ---------- */
 .btn{
   margin-top:16px;
   padding:14px;
@@ -37,23 +84,53 @@ body{
   background:linear-gradient(135deg,#ffd84d,#ffb703);
   font-weight:600;
   cursor:pointer;
+  transition:all 0.25s ease;
 }
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(255,216,77,0.35);
+}
+.btn:active{
+  transform:scale(0.96);
+}
+
+/* ---------- INPUT ---------- */
 input{
   width:100%;
   padding:12px;
   border-radius:10px;
   border:none;
   margin-top:6px;
+  outline:none;
+  transition:box-shadow 0.25s ease;
 }
+input:focus{
+  box-shadow:0 0 0 2px rgba(255,216,77,0.6);
+}
+
+/* ---------- INFO BOX ---------- */
 .info-box{
   background:rgba(0,0,0,0.25);
   padding:14px;
   border-radius:14px;
   margin-top:14px;
+  animation:fadeUp 0.4s ease;
 }
-h1{color:#ffd84d;}
-.error{color:#ff6b6b;margin-top:10px;}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ---------- PIN STATES ---------- */
+.error{color:#ff6b6b;margin-top:10px;animation:shake 0.3s;}
 .locked{color:#ff9f1c;margin-top:10px;}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-5px);}
+  75%{transform:translateX(5px);}
+}
 </style>
 </head>
 
@@ -62,6 +139,7 @@ h1{color:#ffd84d;}
 
 <!-- STEP 1 -->
 <div class="step active" id="step1">
+  <img src="logo.png" alt="SunovaX Logo" class="logo">
   <h1>SunovaX ☀️</h1>
   <p>Solar Phone Charging Station</p>
   <button class="btn" onclick="nextStep(2)">Start</button>
@@ -83,8 +161,7 @@ h1{color:#ffd84d;}
   <div class="info-box" id="payInfo"></div>
   <button class="btn" onclick="showPin()">Paid</button>
 
-  <!-- PIN BOX -->
-  <div id="pinBox" style="display:none;">
+  <div id="pinBox" style="display:none">
     <input type="password" id="pinInput" placeholder="Enter admin PIN">
     <button class="btn" onclick="verifyPin()">Confirm</button>
     <div class="error" id="pinError"></div>
@@ -124,66 +201,57 @@ function nextStep(n){
 function calculate(){
   const c = parseInt(current.value);
   const t = parseInt(target.value);
-
   if(isNaN(c)||isNaN(t)||c>=t){
     alert("Please enter valid charge values");
     return;
   }
-
   const diff = t - c;
   payInfo.innerHTML =
     `Charge required: <b>${diff}%</b><br><br>
      Amount to pay: <b>₹${diff}/-</b><br>
      (₹1 per 1%)`;
-
   nextStep(3);
 }
 
 function showPin(){
   if(locked) return;
-  document.getElementById("pinBox").style.display="block";
+  pinBox.style.display="block";
 }
 
 function verifyPin(){
   if(locked) return;
-
-  const pin = document.getElementById("pinInput").value;
-
-  if(pin === ADMIN_PIN){
+  if(pinInput.value === ADMIN_PIN){
     attempts = 0;
-    document.getElementById("pinInput").value = "";
+    pinInput.value = "";
     nextStep(4);
   }else{
     attempts++;
-    document.getElementById("pinError").innerText =
+    pinError.innerText =
       `Incorrect PIN. Attempts left: ${MAX_ATTEMPTS - attempts}`;
-
     if(attempts >= MAX_ATTEMPTS){
       locked = true;
-      document.getElementById("pinLocked").innerText =
-        "Too many wrong attempts. Please refresh the page.";
+      pinLocked.innerText = "Too many attempts. Refresh page.";
     }
   }
 }
 
 function finish(){
   nextStep(5);
-  setTimeout(resetAll, 4000); // auto reset
+  setTimeout(resetAll,4000);
 }
 
 function resetAll(){
   attempts = 0;
   locked = false;
-  document.getElementById("pinError").innerText = "";
-  document.getElementById("pinLocked").innerText = "";
-  document.getElementById("pinBox").style.display="none";
-  document.getElementById("pinInput").value = "";
-  document.getElementById("current").value = "";
-  document.getElementById("target").value = "";
+  pinError.innerText = "";
+  pinLocked.innerText = "";
+  pinBox.style.display="none";
+  pinInput.value = "";
+  current.value = "";
+  target.value = "";
   nextStep(1);
 }
 </script>
 
 </body>
 </html>
-
