@@ -42,7 +42,7 @@ body{
   50%{transform:scale(1.08);opacity:1;}
 }
 
-/* Light rays */
+/* Rays */
 .rays{
   position:absolute;
   width:600px;
@@ -115,7 +115,6 @@ input{
   font-weight:600;
   font-size:16px;
   cursor:pointer;
-  transition:transform 0.15s ease;
 }
 
 .btn:active{transform:scale(0.97);}
@@ -192,7 +191,7 @@ input{
 
 </div>
 
-<!-- FIREBASE -->
+<!-- FIREBASE + LOGIC -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
@@ -213,7 +212,8 @@ const db = getFirestore(app);
 
 const sessionId = "sess_" + Date.now();
 
-function go(n){
+/* 🔴 FIX: make functions GLOBAL */
+window.go = function(n){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
 }
@@ -221,8 +221,11 @@ function go(n){
 window.calc = function(){
   const c = +current.value;
   const t = +target.value;
-  if(!c || !t || c>=t){alert("Enter valid values");return;}
-  const diff = t-c;
+  if(isNaN(c) || isNaN(t) || c >= t){
+    alert("Enter valid charge values");
+    return;
+  }
+  const diff = t - c;
   amountBox.innerHTML = `Pay <b>₹${diff}</b><br>(₹1 per 1%)`;
   go(3);
 }
@@ -232,13 +235,13 @@ window.paid = async function(){
     paid:true,
     adminApproved:false,
     charging:false,
-    time:Date.now()
+    created:Date.now()
   });
   go(4);
 }
 
 onSnapshot(doc(db,"sessions",sessionId),(snap)=>{
-  if(snap.exists() && snap.data().charging===true){
+  if(snap.exists() && snap.data().charging === true){
     go(5);
   }
 });
