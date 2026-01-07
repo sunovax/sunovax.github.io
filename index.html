@@ -87,7 +87,6 @@ input{
   background:#ffd84d;
   font-weight:600;
   cursor:pointer;
-  transition:.2s;
 }
 .btn:hover{background:#ffca2c}
 
@@ -111,7 +110,7 @@ input{
 <div class="step active" id="splash">
   <img src="logo.png" class="logo">
   <h1>SunovaX</h1>
-  <p style="text-align:center">Clean • Smart • Solar</p>
+  <p style="text-align:center">Clean • Smart • Energy</p>
 </div>
 
 <!-- STEP 1 -->
@@ -132,7 +131,7 @@ input{
 <div class="step" id="s3">
   <h1>Payment</h1>
   <div class="info" id="payBox"></div>
-  <button class="btn" onclick="paid()">Paid</button>
+  <button class="btn" onclick="go(4)">Paid</button>
 </div>
 
 <!-- STEP 4 -->
@@ -143,14 +142,14 @@ input{
   <button class="btn" onclick="verify()">Verify</button>
 </div>
 
-<!-- STEP 5 -->
+<!-- STEP 5 (FINAL – stays here) -->
 <div class="step" id="s5">
   <h1>Plug In 🔌</h1>
   <div class="info">
     Admin verified ✅<br><br>
-    Please plug in your phone.
+    Please plug in your phone.<br>
+    Charging will continue until unplugged.
   </div>
-  <button class="btn" onclick="resetAll()">Finish</button>
 </div>
 
 </div>
@@ -174,27 +173,19 @@ function calc(){
   go(3);
 }
 
-function paid(){go(4);}
-
 function verify(){
   if(attempts>=MAX){err.textContent="Too many attempts";return;}
   if(pin.value===ADMIN_PIN){
-    sun.classList.add("active");        // 🌞 SUN PULSE
+    sun.classList.add("active");
     setTimeout(()=>{
       sun.classList.remove("active");
-      go(5);
+      go(5); // STOP HERE until refresh
     },900);
   }else{
     attempts++;
     err.textContent=`Wrong PIN (${MAX-attempts} left)`;
     pin.value="";
   }
-}
-
-function resetAll(){
-  cur.value=req.value=pin.value="";
-  attempts=0;
-  go(1);
 }
 </script>
 
