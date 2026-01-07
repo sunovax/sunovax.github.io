@@ -8,21 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
-}
-
-body{
-  margin:0;
+* { box-sizing:border-box; font-family:'Poppins',sans-serif; margin:0; padding:0; }
+body {
   min-height:100vh;
-  background:
-    radial-gradient(circle at top, rgba(255,215,100,0.25), transparent 60%),
-    linear-gradient(135deg,#0b1f2a,#0e2a3b,#081821);
   display:flex;
   align-items:center;
   justify-content:center;
   color:white;
+  background:
+    radial-gradient(circle at top, rgba(255,215,100,0.25), transparent 60%),
+    linear-gradient(135deg,#0b1f2a,#0e2a3b,#081821);
   overflow:hidden;
 }
 
@@ -35,11 +30,7 @@ body{
   background:radial-gradient(circle,#ffd84d,#ffb703,transparent 65%);
   border-radius:50%;
   animation:pulse 4s infinite ease-in-out;
-}
-
-@keyframes pulse{
-  0%,100%{transform:scale(1);opacity:0.9;}
-  50%{transform:scale(1.08);opacity:1;}
+  z-index:1;
 }
 
 /* Rays */
@@ -49,12 +40,13 @@ body{
   height:600px;
   background:conic-gradient(from 0deg, rgba(255,216,77,0.25), transparent 40%);
   animation:rotate 18s linear infinite;
+  z-index:1;
 }
 
-@keyframes rotate{
-  to{transform:rotate(360deg);}
-}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:0.9;}50%{transform:scale(1.08);opacity:1;}}
+@keyframes rotate{to{transform:rotate(360deg);}}
 
+/* Container */
 .container{
   position:relative;
   z-index:2;
@@ -69,25 +61,13 @@ body{
   animation:fadeUp 0.8s ease;
 }
 
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-h1{
-  font-size:30px;
-  margin-bottom:6px;
-  color:#ffd84d;
-}
+h1{font-size:30px;margin-bottom:6px;color:#ffd84d;}
+h2{font-size:15px;opacity:0.85;margin-bottom:22px;}
 
-h2{
-  font-size:15px;
-  opacity:0.85;
-  margin-bottom:22px;
-}
-
-.step{display:none;}
-.step.active{display:block;}
+.step{display:none;opacity:0;transition:opacity 0.6s ease;}
+.step.active{display:block;opacity:1;}
 
 input{
   width:100%;
@@ -98,11 +78,7 @@ input{
   font-size:15px;
 }
 
-.label{
-  font-size:13px;
-  opacity:0.8;
-  text-align:left;
-}
+.label{font-size:13px;opacity:0.8;text-align:left;}
 
 .btn{
   margin-top:18px;
@@ -115,6 +91,7 @@ input{
   font-weight:600;
   font-size:16px;
   cursor:pointer;
+  transition:transform 0.1s ease;
 }
 
 .btn:active{transform:scale(0.97);}
@@ -124,16 +101,11 @@ input{
   background:rgba(0,0,0,0.25);
   padding:16px;
   border-radius:14px;
+  font-size:15px;
 }
 
-.wait{
-  animation:blink 1.6s infinite;
-}
-
-@keyframes blink{
-  0%,100%{opacity:1;}
-  50%{opacity:0.6;}
-}
+.wait{animation:blink 1.6s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
 </style>
 </head>
 
@@ -144,54 +116,38 @@ input{
 
 <div class="container">
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: Welcome -->
   <div class="step active" id="s1">
     <h1>SunovaX ☀️</h1>
-    <h2>Clean • Smart • Electric</h2>
+    <h2>Clean • Smart • Connected</h2>
     <button class="btn" onclick="go(2)">Start Charging</button>
   </div>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2: Current Charge -->
   <div class="step" id="s2">
     <h1>Battery Details</h1>
-
     <div class="label">Current Charge (%)</div>
-    <input type="number" id="current" min="0" max="100">
-
-    <div class="label" style="margin-top:10px;">Required Charge (%)</div>
-    <input type="number" id="target" min="1" max="100">
-
+    <input type="number" id="current" min="0" max="100" placeholder="e.g. 35">
     <button class="btn" onclick="calc()">Continue</button>
   </div>
 
-  <!-- STEP 3 -->
+  <!-- STEP 3: Plug In -->
   <div class="step" id="s3">
-    <h1>Payment</h1>
+    <h1>Plug In Your Phone 🔌</h1>
     <div class="info" id="amountBox"></div>
-    <button class="btn" onclick="paid()">Paid</button>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 4: Thank You -->
   <div class="step" id="s4">
-    <h1>Waiting</h1>
-    <div class="info wait">
-      Waiting for Admin Verification…
-    </div>
-  </div>
-
-  <!-- STEP 5 -->
-  <div class="step" id="s5">
-    <h1>Charging Enabled 🔌</h1>
+    <h1>Thank You! 🎉</h1>
     <div class="info">
-      Admin approved charging.<br><br>
-      Please plug in your phone.<br>
-      Do not unplug until charging completes.
+      Your phone is now charging with clean solar energy ☀️🔋<br>
+      Have a bright and productive day!
     </div>
   </div>
 
 </div>
 
-<!-- FIREBASE + LOGIC -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
@@ -211,41 +167,46 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const sessionId = "sess_" + Date.now();
+const ADMIN_PIN = "2026";
 
-/* 🔴 FIX: make functions GLOBAL */
 window.go = function(n){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
 }
 
-window.calc = function(){
-  const c = +current.value;
-  const t = +target.value;
-  if(isNaN(c) || isNaN(t) || c >= t){
-    alert("Enter valid charge values");
+window.calc = async function(){
+  const current = +document.getElementById("current").value;
+  if(isNaN(current) || current>=100){
+    alert("Enter valid current charge (less than 100%)");
     return;
   }
-  const diff = t - c;
-  amountBox.innerHTML = `Pay <b>₹${diff}</b><br>(₹1 per 1%)`;
-  go(3);
-}
 
-window.paid = async function(){
+  const diff = 100 - current;
+  const amount = diff; // ₹1 per 1%
+
+  // Move to plug in screen
+  go(3);
+  document.getElementById("amountBox").innerHTML = `
+    Charge required: <b>${diff}%</b><br>
+    Amount: <b>₹${amount}</b>
+  `;
+
+  // Create session in Firestore
   await setDoc(doc(db,"sessions",sessionId),{
     paid:true,
     adminApproved:false,
     charging:false,
     created:Date.now()
   });
-  go(4);
+
+  // Wait for admin approval
+  onSnapshot(doc(db,"sessions",sessionId),(snap)=>{
+    if(snap.exists() && snap.data().charging===true){
+      // After 3 seconds, show Thank You screen
+      setTimeout(()=>go(4),3000);
+    }
+  });
 }
-
-onSnapshot(doc(db,"sessions",sessionId),(snap)=>{
-  if(snap.exists() && snap.data().charging === true){
-    go(5);
-  }
-});
 </script>
-
 </body>
 </html>
