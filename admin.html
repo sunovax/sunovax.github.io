@@ -103,7 +103,6 @@ input[type="password"]{
   </table>
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
@@ -111,7 +110,8 @@ import {
   collection,
   onSnapshot,
   doc,
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -165,12 +165,18 @@ window.approve = async function(id){
     return;
   }
 
+  // Enable charging
   await updateDoc(doc(db,"sessions",id),{
     adminApproved:true,
     charging:true
   });
 
   alert("Charging Enabled");
+
+  // Auto-delete session after 3 seconds
+  setTimeout(async ()=>{
+    await deleteDoc(doc(db,"sessions",id));
+  },3000);
 }
 </script>
 
