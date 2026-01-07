@@ -12,47 +12,54 @@
 body{
   margin:0;min-height:100vh;
   display:flex;align-items:center;justify-content:center;
-  background:#001b1f;color:#eaffff;
+  background:linear-gradient(180deg,#87ceeb,#fff6cc);
   overflow:hidden;
+  color:#2b2b2b;
 }
 
-/* SOLAR RAYS */
+/* solar rays */
 .rays{
-  position:fixed;inset:-50%;
+  position:fixed;
+  inset:-50%;
   background:repeating-conic-gradient(
-    rgba(0,255,213,.18) 0deg 8deg,
-    transparent 8deg 16deg
+    rgba(255,200,0,.15) 0deg 10deg,
+    transparent 10deg 20deg
   );
-  animation:spin 40s linear infinite;
+  animation:spin 50s linear infinite;
   z-index:0;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* FLARE */
-.flare{
+/* sun pulse */
+.sun{
   position:fixed;
-  inset:0;
-  background:radial-gradient(circle,#ffffff 0%,#00ffd5 20%,transparent 60%);
+  top:50%;
+  left:50%;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle,#ffd84d,#ffb703);
+  transform:translate(-50%,-50%) scale(0);
   opacity:0;
+  z-index:4;
   pointer-events:none;
-  z-index:5;
 }
-.flare.active{
-  animation:flare 0.8s ease;
+.sun.active{
+  animation:sunPulse 1.2s ease;
 }
-@keyframes flare{
-  0%{opacity:0;transform:scale(.6)}
+@keyframes sunPulse{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0}
   40%{opacity:1}
-  100%{opacity:0;transform:scale(2)}
+  100%{transform:translate(-50%,-50%) scale(3);opacity:0}
 }
 
-/* CARD */
+/* card */
 .card{
   width:420px;
   padding:32px;
-  background:rgba(0,20,25,.78);
-  border-radius:26px;
-  box-shadow:0 0 35px rgba(0,255,213,.45);
+  background:rgba(255,255,255,.85);
+  border-radius:24px;
+  box-shadow:0 20px 40px rgba(0,0,0,.2);
   z-index:2;
 }
 
@@ -61,37 +68,42 @@ body{
 @keyframes step{to{opacity:1;transform:none}}
 
 .logo{
-  width:180px;margin:0 auto 14px;display:block;
-  filter:drop-shadow(0 0 20px #00ffd5);
+  width:170px;
+  display:block;
+  margin:0 auto 14px;
 }
 
-h1{text-align:center;color:#00ffd5}
+h1{text-align:center;color:#e09f00}
 
 input{
   width:100%;padding:14px;margin-top:12px;
-  border-radius:14px;border:none;
+  border-radius:12px;border:1px solid #ccc;
 }
 
 .btn{
   width:100%;margin-top:18px;
-  padding:15px;border:none;
-  border-radius:18px;
-  background:linear-gradient(135deg,#00ffd5,#00bfa6);
-  font-weight:600;cursor:pointer;
+  padding:14px;border:none;
+  border-radius:14px;
+  background:#ffd84d;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
 }
+.btn:hover{background:#ffca2c}
 
 .info{
-  background:rgba(0,0,0,.35);
-  padding:16px;border-radius:16px;margin-top:14px;
+  background:#fff2c6;
+  padding:16px;border-radius:14px;
+  margin-top:14px;
 }
-.error{color:#ff6b6b;margin-top:10px}
+.error{color:#d62828;margin-top:10px}
 </style>
 </head>
 
 <body>
 
 <div class="rays"></div>
-<div class="flare" id="flare"></div>
+<div class="sun" id="sun"></div>
 
 <div class="card">
 
@@ -116,14 +128,14 @@ input{
   <button class="btn" onclick="calc()">Continue</button>
 </div>
 
-<!-- STEP 3 PAYMENT -->
+<!-- STEP 3 -->
 <div class="step" id="s3">
   <h1>Payment</h1>
   <div class="info" id="payBox"></div>
   <button class="btn" onclick="paid()">Paid</button>
 </div>
 
-<!-- STEP 4 ADMIN -->
+<!-- STEP 4 -->
 <div class="step" id="s4">
   <h1>Admin Verification</h1>
   <input type="password" id="pin" placeholder="Admin PIN">
@@ -156,25 +168,27 @@ function go(n){
 
 function calc(){
   let c=+cur.value,r=+req.value;
-  if(isNaN(c)||isNaN(r)||c>=r){alert("Invalid values");return;}
+  if(isNaN(c)||isNaN(r)||c>=r){alert("Enter valid values");return;}
   let amt=r-c;
   payBox.innerHTML=`Charge needed: <b>${amt}%</b><br><br>Pay: <b>₹${amt}</b>`;
   go(3);
 }
 
-/* PAID → FLARE → ADMIN PAGE */
-function paid(){
-  flare.classList.add("active");
-  setTimeout(()=>{
-    flare.classList.remove("active");
-    go(4);
-  },700);
-}
+function paid(){go(4);}
 
 function verify(){
   if(attempts>=MAX){err.textContent="Too many attempts";return;}
-  if(pin.value===ADMIN_PIN){go(5);}
-  else{attempts++;err.textContent=`Wrong PIN (${MAX-attempts} left)`;pin.value="";}
+  if(pin.value===ADMIN_PIN){
+    sun.classList.add("active");        // 🌞 SUN PULSE
+    setTimeout(()=>{
+      sun.classList.remove("active");
+      go(5);
+    },900);
+  }else{
+    attempts++;
+    err.textContent=`Wrong PIN (${MAX-attempts} left)`;
+    pin.value="";
+  }
 }
 
 function resetAll(){
