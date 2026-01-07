@@ -2,191 +2,246 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>SunovaX Charging Station</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SunovaX Solar Charging</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;font-family:'Poppins',sans-serif}
+*{
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
 
 body{
-  margin:0;min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#87ceeb,#fff6cc);
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top, rgba(255,215,100,0.25), transparent 60%),
+    linear-gradient(135deg,#0b1f2a,#0e2a3b,#081821);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
   overflow:hidden;
-  color:#2b2b2b;
 }
 
-/* solar rays */
-.rays{
-  position:fixed;
-  inset:-50%;
-  background:repeating-conic-gradient(
-    rgba(255,200,0,.15) 0deg 10deg,
-    transparent 10deg 20deg
-  );
-  animation:spin 50s linear infinite;
-  z-index:0;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* sun pulse */
+/* Sun pulse */
 .sun{
-  position:fixed;
-  top:50%;
-  left:50%;
-  width:220px;
-  height:220px;
+  position:absolute;
+  top:-120px;
+  width:320px;
+  height:320px;
+  background:radial-gradient(circle,#ffd84d,#ffb703,transparent 65%);
   border-radius:50%;
-  background:radial-gradient(circle,#ffd84d,#ffb703);
-  transform:translate(-50%,-50%) scale(0);
-  opacity:0;
-  z-index:4;
-  pointer-events:none;
-}
-.sun.active{
-  animation:sunPulse 1.2s ease;
-}
-@keyframes sunPulse{
-  0%{transform:translate(-50%,-50%) scale(0);opacity:0}
-  40%{opacity:1}
-  100%{transform:translate(-50%,-50%) scale(3);opacity:0}
+  animation:pulse 4s infinite ease-in-out;
 }
 
-/* card */
-.card{
-  width:420px;
-  padding:32px;
-  background:rgba(255,255,255,.85);
-  border-radius:24px;
-  box-shadow:0 20px 40px rgba(0,0,0,.2);
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:0.9;}
+  50%{transform:scale(1.08);opacity:1;}
+}
+
+/* Light rays */
+.rays{
+  position:absolute;
+  width:600px;
+  height:600px;
+  background:conic-gradient(from 0deg, rgba(255,216,77,0.25), transparent 40%);
+  animation:rotate 18s linear infinite;
+}
+
+@keyframes rotate{
+  to{transform:rotate(360deg);}
+}
+
+.container{
+  position:relative;
   z-index:2;
+  width:100%;
+  max-width:420px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(16px);
+  border-radius:24px;
+  padding:32px;
+  box-shadow:0 25px 50px rgba(0,0,0,0.4);
+  text-align:center;
+  animation:fadeUp 0.8s ease;
 }
 
-.step{display:none;opacity:0;transform:translateY(30px)}
-.step.active{display:block;animation:step .4s ease forwards}
-@keyframes step{to{opacity:1;transform:none}}
-
-.logo{
-  width:170px;
-  display:block;
-  margin:0 auto 14px;
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
 }
 
-h1{text-align:center;color:#e09f00}
+h1{
+  font-size:30px;
+  margin-bottom:6px;
+  color:#ffd84d;
+}
+
+h2{
+  font-size:15px;
+  opacity:0.85;
+  margin-bottom:22px;
+}
+
+.step{display:none;}
+.step.active{display:block;}
 
 input{
-  width:100%;padding:14px;margin-top:12px;
-  border-radius:12px;border:1px solid #ccc;
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  margin-top:8px;
+  font-size:15px;
+}
+
+.label{
+  font-size:13px;
+  opacity:0.8;
+  text-align:left;
 }
 
 .btn{
-  width:100%;margin-top:18px;
-  padding:14px;border:none;
+  margin-top:18px;
+  padding:14px;
+  border:none;
   border-radius:14px;
-  background:#ffd84d;
+  width:100%;
+  background:linear-gradient(135deg,#ffd84d,#ffb703);
+  color:#000;
   font-weight:600;
+  font-size:16px;
   cursor:pointer;
+  transition:transform 0.15s ease;
 }
-.btn:hover{background:#ffca2c}
+
+.btn:active{transform:scale(0.97);}
 
 .info{
-  background:#fff2c6;
-  padding:16px;border-radius:14px;
-  margin-top:14px;
+  margin-top:16px;
+  background:rgba(0,0,0,0.25);
+  padding:16px;
+  border-radius:14px;
 }
-.error{color:#d62828;margin-top:10px}
+
+.wait{
+  animation:blink 1.6s infinite;
+}
+
+@keyframes blink{
+  0%,100%{opacity:1;}
+  50%{opacity:0.6;}
+}
 </style>
 </head>
 
 <body>
 
+<div class="sun"></div>
 <div class="rays"></div>
-<div class="sun" id="sun"></div>
 
-<div class="card">
+<div class="container">
 
-<!-- SPLASH -->
-<div class="step active" id="splash">
-  <img src="logo.png" class="logo">
-  <h1>SunovaX</h1>
-  <p style="text-align:center">Clean • Smart • Energy</p>
-</div>
-
-<!-- STEP 1 -->
-<div class="step" id="s1">
-  <h1>Welcome ☀️</h1>
-  <button class="btn" onclick="go(2)">Start Charging</button>
-</div>
-
-<!-- STEP 2 -->
-<div class="step" id="s2">
-  <h1>Battery Status</h1>
-  <input id="cur" type="number" placeholder="Current charge %">
-  <input id="req" type="number" placeholder="Required charge %">
-  <button class="btn" onclick="calc()">Continue</button>
-</div>
-
-<!-- STEP 3 -->
-<div class="step" id="s3">
-  <h1>Payment</h1>
-  <div class="info" id="payBox"></div>
-  <button class="btn" onclick="go(4)">Paid</button>
-</div>
-
-<!-- STEP 4 -->
-<div class="step" id="s4">
-  <h1>Admin Verification</h1>
-  <input type="password" id="pin" placeholder="Admin PIN">
-  <div class="error" id="err"></div>
-  <button class="btn" onclick="verify()">Verify</button>
-</div>
-
-<!-- STEP 5 (FINAL – stays here) -->
-<div class="step" id="s5">
-  <h1>Plug In 🔌</h1>
-  <div class="info">
-    Admin verified ✅<br><br>
-    Please plug in your phone.<br>
-    Charging will continue until unplugged.
+  <!-- STEP 1 -->
+  <div class="step active" id="s1">
+    <h1>SunovaX ☀️</h1>
+    <h2>Clean • Smart • Electric</h2>
+    <button class="btn" onclick="go(2)">Start Charging</button>
   </div>
-</div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="s2">
+    <h1>Battery Details</h1>
+
+    <div class="label">Current Charge (%)</div>
+    <input type="number" id="current" min="0" max="100">
+
+    <div class="label" style="margin-top:10px;">Required Charge (%)</div>
+    <input type="number" id="target" min="1" max="100">
+
+    <button class="btn" onclick="calc()">Continue</button>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="s3">
+    <h1>Payment</h1>
+    <div class="info" id="amountBox"></div>
+    <button class="btn" onclick="paid()">Paid</button>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="s4">
+    <h1>Waiting</h1>
+    <div class="info wait">
+      Waiting for Admin Verification…
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="s5">
+    <h1>Charging Enabled 🔌</h1>
+    <div class="info">
+      Admin approved charging.<br><br>
+      Please plug in your phone.<br>
+      Do not unplug until charging completes.
+    </div>
+  </div>
 
 </div>
 
-<script>
-const ADMIN_PIN="2026";
-let attempts=0,MAX=5;
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-setTimeout(()=>go(1),2500);
+const firebaseConfig = {
+  apiKey: "AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
+  authDomain: "sunovax.firebaseapp.com",
+  projectId: "sunovax"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const sessionId = "sess_" + Date.now();
 
 function go(n){
-  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-  document.getElementById(n===1?'s1':'s'+n).classList.add('active');
+  document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+  document.getElementById("s"+n).classList.add("active");
 }
 
-function calc(){
-  let c=+cur.value,r=+req.value;
-  if(isNaN(c)||isNaN(r)||c>=r){alert("Enter valid values");return;}
-  let amt=r-c;
-  payBox.innerHTML=`Charge needed: <b>${amt}%</b><br><br>Pay: <b>₹${amt}</b>`;
+window.calc = function(){
+  const c = +current.value;
+  const t = +target.value;
+  if(!c || !t || c>=t){alert("Enter valid values");return;}
+  const diff = t-c;
+  amountBox.innerHTML = `Pay <b>₹${diff}</b><br>(₹1 per 1%)`;
   go(3);
 }
 
-function verify(){
-  if(attempts>=MAX){err.textContent="Too many attempts";return;}
-  if(pin.value===ADMIN_PIN){
-    sun.classList.add("active");
-    setTimeout(()=>{
-      sun.classList.remove("active");
-      go(5); // STOP HERE until refresh
-    },900);
-  }else{
-    attempts++;
-    err.textContent=`Wrong PIN (${MAX-attempts} left)`;
-    pin.value="";
-  }
+window.paid = async function(){
+  await setDoc(doc(db,"sessions",sessionId),{
+    paid:true,
+    adminApproved:false,
+    charging:false,
+    time:Date.now()
+  });
+  go(4);
 }
+
+onSnapshot(doc(db,"sessions",sessionId),(snap)=>{
+  if(snap.exists() && snap.data().charging===true){
+    go(5);
+  }
+});
 </script>
 
 </body>
