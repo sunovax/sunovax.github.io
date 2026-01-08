@@ -2,170 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SUNOVAX Charging Station</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUNOVAX Charging</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;font-family:'Poppins',sans-serif;margin:0;padding:0}
-
+*{box-sizing:border-box;font-family:Poppins;margin:0;padding:0}
 body{
   min-height:100vh;
   display:flex;
-  align-items:center;
   justify-content:center;
-  background:linear-gradient(135deg,#081821,#0e2a3b,#0b1f2a);
+  align-items:center;
+  background:linear-gradient(135deg,#081821,#0e2a3b);
   color:#fff;
 }
-
-.container{
-  width:100%;
-  max-width:420px;
-  background:rgba(255,255,255,0.08);
+.box{
+  width:380px;
+  background:rgba(255,255,255,.08);
   backdrop-filter:blur(16px);
-  border-radius:24px;
+  border-radius:26px;
   padding:30px;
   text-align:center;
 }
-
-.logo{
-  font-size:42px;
-  font-weight:700;
-  color:#ffd84d;
+.sun{
+  width:220px;height:220px;
+  margin:0 auto 15px;
+  background:radial-gradient(circle,#ffd84d,#ffb703,transparent 65%);
+  border-radius:50%;
 }
-
-.tagline{
-  font-size:14px;
-  opacity:.85;
-  margin-bottom:30px;
-}
-
+h1{color:#ffd84d;font-size:36px}
+p{opacity:.85;margin-bottom:25px}
 .step{display:none}
 .step.active{display:block}
-
-input{
+input,button{
   width:100%;
   padding:14px;
-  border:none;
-  border-radius:12px;
-  margin:10px 0;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
   border-radius:14px;
+  border:none;
+  margin-top:12px;
+}
+button{
   background:linear-gradient(135deg,#ffd84d,#ffb703);
   font-weight:600;
   cursor:pointer;
 }
-
 .info{
   margin-top:15px;
   background:rgba(0,0,0,.25);
   padding:15px;
   border-radius:14px;
 }
-
-.timer{
-  font-size:22px;
-  margin-top:10px;
-  color:#7CFC98;
-}
 </style>
 </head>
 
 <body>
+<div class="box">
 
-<div class="container">
+<div class="step active" id="s1">
+  <div class="sun"></div>
+  <h1>SUNOVAX</h1>
+  <p>Smart • Clean • Renewable Energy</p>
+  <button onclick="go(2)">Start Charging</button>
+</div>
 
-  <div class="step active" id="s1">
-    <div class="logo">SUNOVAX ☀️</div>
-    <div class="tagline">Smart • Clean • Renewable Energy</div>
-    <button onclick="go(2)">Start Charging</button>
+<div class="step" id="s2">
+  <h3>Current Battery %</h3>
+  <input id="cur" type="number" placeholder="Eg: 45">
+  <button onclick="start()">Continue</button>
+</div>
+
+<div class="step" id="s3">
+  <h3>Plug In 🔌</h3>
+  <div class="info" id="est"></div>
+</div>
+
+<div class="step" id="s4">
+  <h3>Thank You 🌞</h3>
+  <div class="info">
+    Charging started successfully.<br>
+    Thank you for choosing <b>SUNOVAX</b>.
   </div>
-
-  <div class="step" id="s2">
-    <h3>Current Battery %</h3>
-    <input type="number" id="current" placeholder="Eg: 40">
-    <button onclick="createSession()">Continue</button>
-  </div>
-
-  <div class="step" id="s3">
-    <h3>Plug In Your Phone 🔌</h3>
-    <div class="info" id="details"></div>
-    <div class="timer" id="timer">00:00:00</div>
-  </div>
+</div>
 
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {getFirestore,collection,addDoc,doc,onSnapshot} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
   projectId:"sunovax"
 });
-const db = getFirestore(app);
+const db=getFirestore(app);
 
 let sessionRef;
-let timerInt;
 
-window.go = n =>{
+window.go=n=>{
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
-}
+};
 
-window.createSession = async ()=>{
-  const cur = +document.getElementById("current").value;
+window.start=async()=>{
+  const cur=+curInput.value;
   if(isNaN(cur)||cur>=100) return alert("Invalid value");
 
-  const need = 100-cur;
-  const duration = need * 60; // 1% = 1 min
+  const mins=100-cur;
 
-  sessionRef = await addDoc(collection(db,"sessions"),{
-    paid:true,
-    adminApproved:false,
-    charging:false,
-    duration,
-    createdAt:Date.now()
+  sessionRef=await addDoc(collection(db,"sessions"),{
+    created:Date.now(),
+    duration:mins*60,
+    charging:false
   });
 
-  document.getElementById("details").innerHTML =
-    `Required: <b>${need}%</b><br>Estimated time: <b>${need} min</b>`;
-
+  est.innerHTML=`Estimated Time: <b>${mins} minutes</b>`;
   go(3);
 
   onSnapshot(doc(db,"sessions",sessionRef.id),snap=>{
-    if(!snap.exists()){
-      clearInterval(timerInt);
-      alert("Session Ended");
-      location.reload();
-      return;
-    }
-
-    const d=snap.data();
-    if(d.charging && d.endsAt){
-      startTimer(d.endsAt);
-    }
+    if(!snap.exists()) location.reload();
+    if(snap.data().charging) setTimeout(()=>go(4),3000);
   });
-}
+};
 
-function startTimer(end){
-  clearInterval(timerInt);
-  timerInt=setInterval(()=>{
-    const t=end-Date.now();
-    if(t<=0) clearInterval(timerInt);
-    const h=Math.floor(t/3600000);
-    const m=Math.floor(t/60000)%60;
-    const s=Math.floor(t/1000)%60;
-    timer.textContent=
-      `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-  },1000);
-}
+const curInput=document.getElementById("cur");
+const est=document.getElementById("est");
 </script>
 </body>
 </html>
