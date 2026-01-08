@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>SUNOVAX Admin</title>
@@ -8,44 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-body{
-  font-family:Poppins;
-  background:#081821;
-  color:#fff;
-  padding:20px;
-}
-
+body{font-family:Poppins;background:#081821;color:#fff;padding:20px}
 h2{color:#ffd84d;text-align:center}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-
-th,td{
-  padding:12px;
-  border-bottom:1px solid #333;
-  text-align:center;
-}
-
-button{
-  padding:8px 12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-}
-
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{padding:10px;border-bottom:1px solid #333;text-align:center}
+button{padding:7px 12px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
 .enable{background:#4caf50}
 .disable{background:#f44336;color:#fff}
-
 .timer{color:#7CFC98}
 </style>
 </head>
 
 <body>
-
 <h2>SUNOVAX – Admin Panel</h2>
 
 <table>
@@ -70,21 +44,13 @@ const app=initializeApp({
   projectId:"sunovax"
 });
 const db=getFirestore(app);
-
 const ADMIN_PIN="2026";
-const rows=document.getElementById("rows");
 
 onSnapshot(collection(db,"sessions"),snap=>{
   rows.innerHTML="";
-
   const list=snap.docs
     .map(d=>({id:d.id,...d.data()}))
-    .sort((a,b)=>b.createdAt-a.createdAt);
-
-  if(!list.length){
-    rows.innerHTML="<tr><td colspan='5'>No users</td></tr>";
-    return;
-  }
+    .sort((a,b)=>b.created-a.created);
 
   list.forEach((s,i)=>{
     rows.innerHTML+=`
@@ -92,14 +58,14 @@ onSnapshot(collection(db,"sessions"),snap=>{
       <td>User ${i+1}</td>
       <td>${s.charging?"Charging":"Waiting"}</td>
       <td class="timer" id="t${s.id}">--</td>
-      <td><input type="password" id="p${s.id}" style="width:80px"></td>
+      <td><input id="p${s.id}" type="password" style="width:70px"></td>
       <td>
         ${!s.charging
           ?`<button class="enable" onclick="enable('${s.id}',${s.duration})">Enable</button>`
-          :`<button class="disable" onclick="remove('${s.id}')">Remove</button>`}
+          :`<button class="disable" onclick="disable('${s.id}')">Disable</button>`}
       </td>
     </tr>`;
-    if(s.charging) runTimer(s.id,s.endsAt);
+    if(s.charging) timer(s.id,s.endsAt);
   });
 });
 
@@ -109,14 +75,15 @@ window.enable=async(id,dur)=>{
 
   await updateDoc(doc(db,"sessions",id),{
     charging:true,
-    adminApproved:true,
     endsAt:Date.now()+dur*1000
   });
 };
 
-window.remove=id=>deleteDoc(doc(db,"sessions",id));
+window.disable=async(id)=>{
+  await deleteDoc(doc(db,"sessions",id));
+};
 
-function runTimer(id,end){
+function timer(id,end){
   setInterval(()=>{
     const t=end-Date.now();
     if(t<=0) deleteDoc(doc(db,"sessions",id));
