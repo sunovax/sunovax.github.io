@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SunovaX Admin Panel</title>
+<title>SUNOVAX Admin Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@ body{
 
 .panel{
   width:100%;
-  max-width:900px;
+  max-width:950px;
   background:rgba(255,255,255,0.08);
   backdrop-filter:blur(16px);
   border-radius:24px;
@@ -39,7 +39,6 @@ h1{
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
 }
 
 th,td{
@@ -71,11 +70,16 @@ tr{
   cursor:pointer;
 }
 
+.btn.disable{
+  background:linear-gradient(135deg,#ff5f5f,#ff1f1f);
+  color:#fff;
+}
+
 input[type="password"]{
   padding:8px;
   border-radius:8px;
   border:none;
-  width:100px;
+  width:90px;
   text-align:center;
 }
 </style>
@@ -84,12 +88,12 @@ input[type="password"]{
 <body>
 
 <div class="panel">
-  <h1>SunovaX Admin Dashboard</h1>
+  <h1>SUNOVAX – Admin Dashboard</h1>
 
   <table>
     <thead>
       <tr>
-        <th>Session ID</th>
+        <th>User</th>
         <th>Payment</th>
         <th>Admin</th>
         <th>Charging</th>
@@ -114,6 +118,7 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+/* 🔥 Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
   authDomain: "sunovax.firebaseapp.com",
@@ -123,61 +128,73 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* 🔐 Admin PIN */
 const ADMIN_PIN = "2026";
+
 const rows = document.getElementById("rows");
 
+/* 📡 Live sessions */
 onSnapshot(collection(db,"sessions"), snapshot=>{
   rows.innerHTML = "";
+
   if(snapshot.empty){
     rows.innerHTML = "<tr><td colspan='6'>No active sessions</td></tr>";
     return;
   }
 
-  snapshot.forEach(docSnap=>{
-    const d = docSnap.data();
-    const id = docSnap.id;
+  // 🔽 NEW USERS ON TOP
+  const sessions = snapshot.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b)=> b.createdAt - a.createdAt);
 
+  sessions.forEach((s,index)=>{
     rows.innerHTML += `
       <tr>
-        <td>${id}</td>
-        <td class="${d.paid?'status-paid':'status-wait'}">
-          ${d.paid?'Paid':'Due'}
+        <td>User ${index+1}</td>
+        <td class="${s.paid?'status-paid':'status-wait'}">
+          ${s.paid?'Paid':'Due'}
         </td>
-        <td>${d.adminApproved?'✔':'—'}</td>
-        <td class="${d.charging?'status-on':''}">
-          ${d.charging?'ON':'OFF'}
-        </td>
-        <td>
-          <input type="password" id="pin_${id}" placeholder="****">
+        <td>${s.adminApproved?'✔':'—'}</td>
+        <td class="${s.charging?'status-on':''}">
+          ${s.charging?'ON':'OFF'}
         </td>
         <td>
-          <button class="btn" onclick="approve('${id}')">Enable</button>
+          <input type="password" id="pin_${s.id}" placeholder="****">
+        </td>
+        <td>
+          ${!s.charging
+            ? `<button class="btn" onclick="enable('${s.id}')">Enable</button>`
+            : `<button class="btn disable" onclick="remove('${s.id}')">Remove</button>`
+          }
         </td>
       </tr>
     `;
   });
 });
 
-window.approve = async function(id){
+/* ✅ Enable charging */
+window.enable = async (id)=>{
   const pin = document.getElementById("pin_"+id).value;
   if(pin !== ADMIN_PIN){
     alert("Wrong PIN");
     return;
   }
 
-  // Enable charging
   await updateDoc(doc(db,"sessions",id),{
     adminApproved:true,
     charging:true
   });
 
-  alert("Charging Enabled");
-
-  // Auto-delete session after 3 seconds
-  setTimeout(async ()=>{
-    await deleteDoc(doc(db,"sessions",id));
+  // ⏱️ Auto delete after 3 seconds
+  setTimeout(()=>{
+    deleteDoc(doc(db,"sessions",id));
   },3000);
-}
+};
+
+/* ❌ Remove manually */
+window.remove = async (id)=>{
+  await deleteDoc(doc(db,"sessions",id));
+};
 </script>
 
 </body>
