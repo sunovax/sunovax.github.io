@@ -2,49 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SunovaX Charging Station</title>
+<title>SUNOVAX Charging Station</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-* { box-sizing:border-box; font-family:'Poppins',sans-serif; margin:0; padding:0; }
-body {
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   color:white;
   background:
-    radial-gradient(circle at top, rgba(255,215,100,0.25), transparent 60%),
+    radial-gradient(circle at top, rgba(255,215,100,0.35), transparent 60%),
     linear-gradient(135deg,#0b1f2a,#0e2a3b,#081821);
   overflow:hidden;
 }
 
-/* Sun pulse */
+/* BIG SUN / LOGO */
 .sun{
   position:absolute;
-  top:-120px;
-  width:320px;
-  height:320px;
+  top:-180px;
+  width:480px;
+  height:480px;
   background:radial-gradient(circle,#ffd84d,#ffb703,transparent 65%);
   border-radius:50%;
-  animation:pulse 4s infinite ease-in-out;
+  animation:pulse 4s infinite;
   z-index:1;
 }
-
-/* Rays */
-.rays{
-  position:absolute;
-  width:600px;
-  height:600px;
-  background:conic-gradient(from 0deg, rgba(255,216,77,0.25), transparent 40%);
-  animation:rotate 18s linear infinite;
-  z-index:1;
-}
-
-@keyframes pulse{0%,100%{transform:scale(1);opacity:0.9;}50%{transform:scale(1.08);opacity:1;}}
-@keyframes rotate{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
 
 /* Container */
 .container{
@@ -56,17 +44,14 @@ body {
   backdrop-filter:blur(16px);
   border-radius:24px;
   padding:32px;
-  box-shadow:0 25px 50px rgba(0,0,0,0.4);
   text-align:center;
-  animation:fadeUp 0.8s ease;
+  box-shadow:0 25px 50px rgba(0,0,0,0.4);
 }
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+h1{font-size:34px;color:#ffd84d;margin-bottom:6px;}
+h2{font-size:16px;opacity:0.85;margin-bottom:24px;}
 
-h1{font-size:30px;margin-bottom:6px;color:#ffd84d;}
-h2{font-size:15px;opacity:0.85;margin-bottom:22px;}
-
-.step{display:none;opacity:0;transition:opacity 0.6s ease;}
+.step{display:none;opacity:0;transition:.5s;}
 .step.active{display:block;opacity:1;}
 
 input{
@@ -74,77 +59,65 @@ input{
   padding:14px;
   border-radius:12px;
   border:none;
-  margin-top:8px;
+  margin-top:10px;
   font-size:15px;
 }
-
-.label{font-size:13px;opacity:0.8;text-align:left;}
 
 .btn{
   margin-top:18px;
   padding:14px;
+  width:100%;
   border:none;
   border-radius:14px;
-  width:100%;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
-  color:#000;
   font-weight:600;
   font-size:16px;
   cursor:pointer;
-  transition:transform 0.1s ease;
 }
-
-.btn:active{transform:scale(0.97);}
 
 .info{
   margin-top:16px;
   background:rgba(0,0,0,0.25);
   padding:16px;
   border-radius:14px;
-  font-size:15px;
 }
-
-.wait{animation:blink 1.6s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
 </style>
 </head>
 
 <body>
 
 <div class="sun"></div>
-<div class="rays"></div>
 
 <div class="container">
 
-  <!-- STEP 1: Welcome -->
-  <div class="step active" id="s1">
-    <h1>SunovaX ☀️</h1>
-    <h2>Clean • Smart • Connected</h2>
-    <button class="btn" onclick="go(2)">Start Charging</button>
-  </div>
+<!-- STEP 1 -->
+<div class="step active" id="s1">
+  <h1>SUNOVAX</h1>
+  <h2>Smart • Clean • Renewable Energy</h2>
+  <button class="btn" onclick="go(2)">Start Charging</button>
+</div>
 
-  <!-- STEP 2: Current Charge -->
-  <div class="step" id="s2">
-    <h1>Battery Details</h1>
-    <div class="label">Current Charge (%)</div>
-    <input type="number" id="current" min="0" max="100" placeholder="e.g. 35">
-    <button class="btn" onclick="calc()">Continue</button>
-  </div>
+<!-- STEP 2 -->
+<div class="step" id="s2">
+  <h1>Battery Level</h1>
+  <input type="number" id="current" placeholder="Current %">
+  <button class="btn" onclick="calc()">Continue</button>
+</div>
 
-  <!-- STEP 3: Plug In -->
-  <div class="step" id="s3">
-    <h1>Plug In Your Phone 🔌</h1>
-    <div class="info" id="amountBox"></div>
-  </div>
+<!-- STEP 3 -->
+<div class="step" id="s3">
+  <h1>Plug In 🔌</h1>
+  <div class="info" id="amountBox"></div>
+</div>
 
-  <!-- STEP 4: Thank You -->
-  <div class="step" id="s4">
-    <h1>Thank You! 🎉</h1>
-    <div class="info">
-      Your phone is now charging with clean solar energy ☀️🔋<br>
-      Have a bright and productive day!
-    </div>
+<!-- STEP 4 -->
+<div class="step" id="s4">
+  <h1>Thank You 🌞</h1>
+  <div class="info">
+    Charging started using clean energy.<br>
+    Thank you for choosing SUNOVAX.
   </div>
+</div>
 
 </div>
 
@@ -154,7 +127,8 @@ import {
   getFirestore,
   doc,
   setDoc,
-  onSnapshot
+  onSnapshot,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -167,31 +141,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const sessionId = "sess_" + Date.now();
-const ADMIN_PIN = "2026";
 
-window.go = function(n){
+window.go = n=>{
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
-}
+};
 
-window.calc = async function(){
+window.calc = async ()=>{
   const current = +document.getElementById("current").value;
-  if(isNaN(current) || current>=100){
-    alert("Enter valid current charge (less than 100%)");
-    return;
-  }
+  if(isNaN(current)||current>=100) return alert("Enter valid %");
 
-  const diff = 100 - current;
-  const amount = diff; // ₹1 per 1%
-
-  // Move to plug in screen
   go(3);
-  document.getElementById("amountBox").innerHTML = `
-    Charge required: <b>${diff}%</b><br>
-    Amount: <b>₹${amount}</b>
-  `;
+  document.getElementById("amountBox").innerHTML =
+    `Amount to Pay: <b>₹100</b>`;
 
-  // Create session in Firestore
   await setDoc(doc(db,"sessions",sessionId),{
     paid:true,
     adminApproved:false,
@@ -199,14 +162,18 @@ window.calc = async function(){
     created:Date.now()
   });
 
-  // Wait for admin approval
-  onSnapshot(doc(db,"sessions",sessionId),(snap)=>{
-    if(snap.exists() && snap.data().charging===true){
-      // After 3 seconds, show Thank You screen
+  onSnapshot(doc(db,"sessions",sessionId),snap=>{
+    if(snap.exists() && snap.data().charging){
       setTimeout(()=>go(4),3000);
+
+      // AUTO DELETE AFTER 30s
+      setTimeout(async ()=>{
+        await deleteDoc(doc(db,"sessions",sessionId));
+      },30000);
     }
   });
-}
+};
 </script>
+
 </body>
 </html>
