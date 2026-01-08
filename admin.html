@@ -5,26 +5,23 @@
 <title>SUNOVAX Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
-body{margin:0;background:#081821;color:#fff;font-family:Poppins;padding:20px}
-h1{text-align:center;color:#ffd84d}
-table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{padding:10px;text-align:center;border-bottom:1px solid #333}
-.btn{padding:6px 12px;border:none;border-radius:10px;cursor:pointer}
-.enable{background:#4caf50}
-.disable{background:#f44336}
-input{width:80px;padding:6px;border-radius:6px;border:none;text-align:center}
+body{margin:0;background:#081821;color:#fff;font-family:Poppins;padding:20px;}
+h1{text-align:center;color:#ffd84d;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{padding:10px;text-align:center;border-bottom:1px solid #333;}
+.btn{padding:6px 12px;border:none;border-radius:10px;cursor:pointer;}
+.enable{background:#4caf50;}
+.disable{background:#f44336;}
+input{width:80px;padding:6px;border-radius:6px;border:none;text-align:center;}
 </style>
 </head>
-
 <body>
 <h1>SUNOVAX Admin Panel</h1>
-
 <table>
 <thead>
 <tr>
-<th>Name</th><th>Payment</th><th>Verified</th>
+<th>Client</th><th>Company</th><th>Payment</th><th>Verified</th>
 <th>PIN</th><th>Action</th><th>Timer</th>
 </tr>
 </thead>
@@ -33,9 +30,7 @@ input{width:80px;padding:6px;border-radius:6px;border:none;text-align:center}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import {
-  getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
@@ -43,21 +38,21 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 const ADMIN_PIN="2026";
+let timers = {};
 
 onSnapshot(collection(db,"sessions"),snap=>{
   rows.innerHTML="";
   snap.docs
     .sort((a,b)=>b.data().createdAt-a.data().createdAt)
-    .forEach((d,i)=>{
+    .forEach((d)=>{
       const s=d.data(), id=d.id;
       rows.innerHTML+=`
       <tr>
-        <td>User ${i+1}</td>
+        <td>${s.name}</td>
+        <td>${s.company}</td>
         <td>${s.paid?"Paid":"Due"}</td>
         <td>${s.verified?"✔":"✖"}</td>
-        <td>
-          ${s.charging?"—":`<input type="password" id="p${id}">`}
-        </td>
+        <td>${s.charging?"—":`<input type="password" id="p${id}">`}</td>
         <td>
           ${!s.charging
             ?`<button class="btn enable" onclick="en('${id}',${s.duration})">Enable</button>`
@@ -65,7 +60,7 @@ onSnapshot(collection(db,"sessions"),snap=>{
         </td>
         <td id="t${id}">--</td>
       </tr>`;
-      if(s.charging) timer(id,s.endsAt);
+      if(s.charging && !timers[id]) timer(id,s.endsAt);
     });
 });
 
@@ -81,20 +76,26 @@ window.en=async(id,dur)=>{
 
 window.dis=async(id)=>{
   await deleteDoc(doc(db,"sessions",id));
+  clearInterval(timers[id]);
+  delete timers[id];
 };
 
 function timer(id,end){
-  setInterval(async()=>{
+  timers[id]=setInterval(async()=>{
     const t=end-Date.now();
-    if(t<=0) return deleteDoc(doc(db,"sessions",id));
+    if(t<=0){
+      clearInterval(timers[id]);
+      delete timers[id];
+      await deleteDoc(doc(db,"sessions",id));
+      return;
+    }
     const h=Math.floor(t/3600000);
     const m=Math.floor(t/60000)%60;
     const s=Math.floor(t/1000)%60;
     document.getElementById("t"+id).innerText=
-      `${h.toString().padStart(2,0)}:${m.toString().padStart(2,0)}:${s.toString().padStart(2,0)}`;
+      `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   },1000);
 }
 </script>
 </body>
 </html>
-
