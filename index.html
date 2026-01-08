@@ -21,7 +21,7 @@ body{
   overflow:hidden;
 }
 
-/* BIG SUN / LOGO */
+/* BIG SUN */
 .sun{
   position:absolute;
   top:-180px;
@@ -81,6 +81,12 @@ input{
   padding:16px;
   border-radius:14px;
 }
+
+.timer{
+  margin-top:14px;
+  font-size:22px;
+  font-weight:600;
+}
 </style>
 </head>
 
@@ -92,7 +98,7 @@ input{
 
 <!-- STEP 1 -->
 <div class="step active" id="s1">
-  <h1>SUNOVAX</h1>
+  <h1>SUNOVAX ☀️</h1>
   <h2>Smart • Clean • Renewable Energy</h2>
   <button class="btn" onclick="go(2)">Start Charging</button>
 </div>
@@ -101,21 +107,23 @@ input{
 <div class="step" id="s2">
   <h1>Battery Level</h1>
   <input type="number" id="current" placeholder="Current %">
-  <button class="btn" onclick="calc()">Continue</button>
+  <button class="btn" onclick="start()">Pay & Continue</button>
 </div>
 
 <!-- STEP 3 -->
 <div class="step" id="s3">
   <h1>Plug In 🔌</h1>
-  <div class="info" id="amountBox"></div>
+  <div class="info" id="infoBox"></div>
+  <div class="timer" id="timer">00:00:00</div>
+  <p style="margin-top:10px;opacity:.8">Waiting for admin confirmation…</p>
 </div>
 
 <!-- STEP 4 -->
 <div class="step" id="s4">
   <h1>Thank You 🌞</h1>
   <div class="info">
-    Charging started using clean energy.<br>
-    Thank you for choosing SUNOVAX.
+    Charging completed successfully.<br>
+    Thank you for choosing <b>SUNOVAX</b>.
   </div>
 </div>
 
@@ -125,54 +133,83 @@ input{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
   getFirestore,
-  doc,
-  setDoc,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  getDocs,
   onSnapshot,
+  doc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
-  authDomain: "sunovax.firebaseapp.com",
   projectId: "sunovax"
-};
-
-const app = initializeApp(firebaseConfig);
+});
 const db = getFirestore(app);
 
-const sessionId = "sess_" + Date.now();
-
-window.go = n=>{
+function go(n){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
-};
+}
 
-window.calc = async ()=>{
+async function getUserNumber(){
+  const q=query(collection(db,"sessions"),orderBy("created"));
+  const snap=await getDocs(q);
+  return snap.size+1;
+}
+
+window.start = async ()=>{
   const current = +document.getElementById("current").value;
-  if(isNaN(current)||current>=100) return alert("Enter valid %");
+  if(isNaN(current) || current>=100) return alert("Enter valid %");
 
-  go(3);
-  document.getElementById("amountBox").innerHTML =
-    `Amount to Pay: <b>₹100</b>`;
+  const diff = 100-current;
+  const duration = diff * 60; // seconds
 
-  await setDoc(doc(db,"sessions",sessionId),{
+  const userNo = await getUserNumber();
+  const ref = await addDoc(collection(db,"sessions"),{
+    name:`User ${userNo}`,
     paid:true,
-    adminApproved:false,
     charging:false,
-    created:Date.now()
+    created:Date.now(),
+    duration:duration,
+    endsAt:null
   });
 
-  onSnapshot(doc(db,"sessions",sessionId),snap=>{
-    if(snap.exists() && snap.data().charging){
-      setTimeout(()=>go(4),3000);
+  go(3);
+  document.getElementById("infoBox").innerHTML =
+    `Charge Needed: <b>${diff}%</b><br>
+     Estimated Time: <b>${diff} min</b><br>
+     Amount: <b>₹${diff}</b>`;
 
-      // AUTO DELETE AFTER 30s
-      setTimeout(async ()=>{
-        await deleteDoc(doc(db,"sessions",sessionId));
-      },30000);
+  onSnapshot(doc(db,"sessions",ref.id),snap=>{
+    if(!snap.exists()){
+      go(4);
+      return;
+    }
+    if(snap.data().charging){
+      startTimer(snap.data().endsAt, ref.id);
     }
   });
 };
+
+function startTimer(end, id){
+  const int=setInterval(async ()=>{
+    const t=end-Date.now();
+    if(t<=0){
+      clearInterval(int);
+      await deleteDoc(doc(db,"sessions",id));
+      go(4);
+      return;
+    }
+    const h=Math.floor(t/3600000);
+    const m=Math.floor(t/60000)%60;
+    const s=Math.floor(t/1000)%60;
+    timer.textContent=
+      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+  },1000);
+}
 </script>
 
 </body>
