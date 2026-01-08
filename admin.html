@@ -2,200 +2,129 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SUNOVAX Admin Panel</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUNOVAX Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;font-family:'Poppins',sans-serif;}
-
 body{
-  margin:0;
-  min-height:100vh;
-  background:linear-gradient(135deg,#081821,#0e2a3b,#0b1f2a);
+  font-family:Poppins;
+  background:#081821;
   color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  padding:20px;
 }
 
-.panel{
-  width:100%;
-  max-width:950px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(16px);
-  border-radius:24px;
-  padding:30px;
-  box-shadow:0 25px 50px rgba(0,0,0,0.4);
-}
-
-h1{
-  margin:0 0 20px;
-  color:#ffd84d;
-  text-align:center;
-}
+h2{color:#ffd84d;text-align:center}
 
 table{
   width:100%;
   border-collapse:collapse;
+  margin-top:20px;
 }
 
 th,td{
   padding:12px;
+  border-bottom:1px solid #333;
   text-align:center;
-  font-size:14px;
 }
 
-th{
-  color:#ffd84d;
-  border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-tr{
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
-
-.status-paid{color:#7CFC98;}
-.status-wait{color:#ffcc70;}
-.status-on{color:#00ffcc;}
-
-.btn{
-  padding:8px 14px;
+button{
+  padding:8px 12px;
   border:none;
-  border-radius:10px;
-  background:linear-gradient(135deg,#ffd84d,#ffb703);
-  color:#000;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.btn.disable{
-  background:linear-gradient(135deg,#ff5f5f,#ff1f1f);
-  color:#fff;
-}
-
-input[type="password"]{
-  padding:8px;
   border-radius:8px;
-  border:none;
-  width:90px;
-  text-align:center;
+  cursor:pointer;
+  font-weight:600;
 }
+
+.enable{background:#4caf50}
+.disable{background:#f44336;color:#fff}
+
+.timer{color:#7CFC98}
 </style>
 </head>
 
 <body>
 
-<div class="panel">
-  <h1>SUNOVAX – Admin Dashboard</h1>
+<h2>SUNOVAX – Admin Panel</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Payment</th>
-        <th>Admin</th>
-        <th>Charging</th>
-        <th>PIN</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="rows">
-      <tr><td colspan="6">Waiting for users…</td></tr>
-    </tbody>
-  </table>
-</div>
+<table>
+<thead>
+<tr>
+<th>User</th>
+<th>Status</th>
+<th>Timer</th>
+<th>PIN</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  onSnapshot,
-  doc,
-  updateDoc,
-  deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-/* 🔥 Firebase */
-const firebaseConfig = {
-  apiKey: "AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
-  authDomain: "sunovax.firebaseapp.com",
-  projectId: "sunovax"
-};
+const app=initializeApp({
+  apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
+  projectId:"sunovax"
+});
+const db=getFirestore(app);
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const ADMIN_PIN="2026";
+const rows=document.getElementById("rows");
 
-/* 🔐 Admin PIN */
-const ADMIN_PIN = "2026";
+onSnapshot(collection(db,"sessions"),snap=>{
+  rows.innerHTML="";
 
-const rows = document.getElementById("rows");
+  const list=snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>b.createdAt-a.createdAt);
 
-/* 📡 Live sessions */
-onSnapshot(collection(db,"sessions"), snapshot=>{
-  rows.innerHTML = "";
-
-  if(snapshot.empty){
-    rows.innerHTML = "<tr><td colspan='6'>No active sessions</td></tr>";
+  if(!list.length){
+    rows.innerHTML="<tr><td colspan='5'>No users</td></tr>";
     return;
   }
 
-  // 🔽 NEW USERS ON TOP
-  const sessions = snapshot.docs
-    .map(d => ({ id: d.id, ...d.data() }))
-    .sort((a,b)=> b.createdAt - a.createdAt);
-
-  sessions.forEach((s,index)=>{
-    rows.innerHTML += `
-      <tr>
-        <td>User ${index+1}</td>
-        <td class="${s.paid?'status-paid':'status-wait'}">
-          ${s.paid?'Paid':'Due'}
-        </td>
-        <td>${s.adminApproved?'✔':'—'}</td>
-        <td class="${s.charging?'status-on':''}">
-          ${s.charging?'ON':'OFF'}
-        </td>
-        <td>
-          <input type="password" id="pin_${s.id}" placeholder="****">
-        </td>
-        <td>
-          ${!s.charging
-            ? `<button class="btn" onclick="enable('${s.id}')">Enable</button>`
-            : `<button class="btn disable" onclick="remove('${s.id}')">Remove</button>`
-          }
-        </td>
-      </tr>
-    `;
+  list.forEach((s,i)=>{
+    rows.innerHTML+=`
+    <tr>
+      <td>User ${i+1}</td>
+      <td>${s.charging?"Charging":"Waiting"}</td>
+      <td class="timer" id="t${s.id}">--</td>
+      <td><input type="password" id="p${s.id}" style="width:80px"></td>
+      <td>
+        ${!s.charging
+          ?`<button class="enable" onclick="enable('${s.id}',${s.duration})">Enable</button>`
+          :`<button class="disable" onclick="remove('${s.id}')">Remove</button>`}
+      </td>
+    </tr>`;
+    if(s.charging) runTimer(s.id,s.endsAt);
   });
 });
 
-/* ✅ Enable charging */
-window.enable = async (id)=>{
-  const pin = document.getElementById("pin_"+id).value;
-  if(pin !== ADMIN_PIN){
-    alert("Wrong PIN");
-    return;
-  }
+window.enable=async(id,dur)=>{
+  if(document.getElementById("p"+id).value!==ADMIN_PIN)
+    return alert("Wrong PIN");
 
   await updateDoc(doc(db,"sessions",id),{
+    charging:true,
     adminApproved:true,
-    charging:true
+    endsAt:Date.now()+dur*1000
   });
-
-  // ⏱️ Auto delete after 3 seconds
-  setTimeout(()=>{
-    deleteDoc(doc(db,"sessions",id));
-  },3000);
 };
 
-/* ❌ Remove manually */
-window.remove = async (id)=>{
-  await deleteDoc(doc(db,"sessions",id));
-};
+window.remove=id=>deleteDoc(doc(db,"sessions",id));
+
+function runTimer(id,end){
+  setInterval(()=>{
+    const t=end-Date.now();
+    if(t<=0) deleteDoc(doc(db,"sessions",id));
+    const m=Math.floor(t/60000)%60;
+    const s=Math.floor(t/1000)%60;
+    document.getElementById("t"+id).textContent=`${m}:${s}`;
+  },1000);
+}
 </script>
-
 </body>
 </html>
