@@ -8,209 +8,164 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+*{box-sizing:border-box;font-family:'Poppins',sans-serif;margin:0;padding:0}
+
 body{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  color:white;
-  background:
-    radial-gradient(circle at top, rgba(255,215,100,0.35), transparent 60%),
-    linear-gradient(135deg,#0b1f2a,#0e2a3b,#081821);
-  overflow:hidden;
+  background:linear-gradient(135deg,#081821,#0e2a3b,#0b1f2a);
+  color:#fff;
 }
 
-/* BIG SUN */
-.sun{
-  position:absolute;
-  top:-180px;
-  width:480px;
-  height:480px;
-  background:radial-gradient(circle,#ffd84d,#ffb703,transparent 65%);
-  border-radius:50%;
-  animation:pulse 4s infinite;
-  z-index:1;
-}
-@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-
-/* Container */
 .container{
-  position:relative;
-  z-index:2;
   width:100%;
   max-width:420px;
   background:rgba(255,255,255,0.08);
   backdrop-filter:blur(16px);
   border-radius:24px;
-  padding:32px;
+  padding:30px;
   text-align:center;
-  box-shadow:0 25px 50px rgba(0,0,0,0.4);
 }
 
-h1{font-size:34px;color:#ffd84d;margin-bottom:6px;}
-h2{font-size:16px;opacity:0.85;margin-bottom:24px;}
+.logo{
+  font-size:42px;
+  font-weight:700;
+  color:#ffd84d;
+}
 
-.step{display:none;opacity:0;transition:.5s;}
-.step.active{display:block;opacity:1;}
+.tagline{
+  font-size:14px;
+  opacity:.85;
+  margin-bottom:30px;
+}
+
+.step{display:none}
+.step.active{display:block}
 
 input{
   width:100%;
   padding:14px;
-  border-radius:12px;
   border:none;
-  margin-top:10px;
-  font-size:15px;
+  border-radius:12px;
+  margin:10px 0;
 }
 
-.btn{
-  margin-top:18px;
-  padding:14px;
+button{
   width:100%;
+  padding:14px;
   border:none;
   border-radius:14px;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
   font-weight:600;
-  font-size:16px;
   cursor:pointer;
 }
 
 .info{
-  margin-top:16px;
-  background:rgba(0,0,0,0.25);
-  padding:16px;
+  margin-top:15px;
+  background:rgba(0,0,0,.25);
+  padding:15px;
   border-radius:14px;
 }
 
 .timer{
-  margin-top:14px;
   font-size:22px;
-  font-weight:600;
+  margin-top:10px;
+  color:#7CFC98;
 }
 </style>
 </head>
 
 <body>
 
-<div class="sun"></div>
-
 <div class="container">
 
-<!-- STEP 1 -->
-<div class="step active" id="s1">
-  <h1>SUNOVAX ☀️</h1>
-  <h2>Smart • Clean • Renewable Energy</h2>
-  <button class="btn" onclick="go(2)">Start Charging</button>
-</div>
-
-<!-- STEP 2 -->
-<div class="step" id="s2">
-  <h1>Battery Level</h1>
-  <input type="number" id="current" placeholder="Current %">
-  <button class="btn" onclick="start()">Pay & Continue</button>
-</div>
-
-<!-- STEP 3 -->
-<div class="step" id="s3">
-  <h1>Plug In 🔌</h1>
-  <div class="info" id="infoBox"></div>
-  <div class="timer" id="timer">00:00:00</div>
-  <p style="margin-top:10px;opacity:.8">Waiting for admin confirmation…</p>
-</div>
-
-<!-- STEP 4 -->
-<div class="step" id="s4">
-  <h1>Thank You 🌞</h1>
-  <div class="info">
-    Charging completed successfully.<br>
-    Thank you for choosing <b>SUNOVAX</b>.
+  <div class="step active" id="s1">
+    <div class="logo">SUNOVAX ☀️</div>
+    <div class="tagline">Smart • Clean • Renewable Energy</div>
+    <button onclick="go(2)">Start Charging</button>
   </div>
-</div>
+
+  <div class="step" id="s2">
+    <h3>Current Battery %</h3>
+    <input type="number" id="current" placeholder="Eg: 40">
+    <button onclick="createSession()">Continue</button>
+  </div>
+
+  <div class="step" id="s3">
+    <h3>Plug In Your Phone 🔌</h3>
+    <div class="info" id="details"></div>
+    <div class="timer" id="timer">00:00:00</div>
+  </div>
 
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  getDocs,
-  onSnapshot,
-  doc,
-  deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
-  projectId: "sunovax"
+  apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
+  projectId:"sunovax"
 });
 const db = getFirestore(app);
 
-function go(n){
+let sessionRef;
+let timerInt;
+
+window.go = n =>{
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
   document.getElementById("s"+n).classList.add("active");
 }
 
-async function getUserNumber(){
-  const q=query(collection(db,"sessions"),orderBy("created"));
-  const snap=await getDocs(q);
-  return snap.size+1;
-}
+window.createSession = async ()=>{
+  const cur = +document.getElementById("current").value;
+  if(isNaN(cur)||cur>=100) return alert("Invalid value");
 
-window.start = async ()=>{
-  const current = +document.getElementById("current").value;
-  if(isNaN(current) || current>=100) return alert("Enter valid %");
+  const need = 100-cur;
+  const duration = need * 60; // 1% = 1 min
 
-  const diff = 100-current;
-  const duration = diff * 60; // seconds
-
-  const userNo = await getUserNumber();
-  const ref = await addDoc(collection(db,"sessions"),{
-    name:`User ${userNo}`,
+  sessionRef = await addDoc(collection(db,"sessions"),{
     paid:true,
+    adminApproved:false,
     charging:false,
-    created:Date.now(),
-    duration:duration,
-    endsAt:null
+    duration,
+    createdAt:Date.now()
   });
+
+  document.getElementById("details").innerHTML =
+    `Required: <b>${need}%</b><br>Estimated time: <b>${need} min</b>`;
 
   go(3);
-  document.getElementById("infoBox").innerHTML =
-    `Charge Needed: <b>${diff}%</b><br>
-     Estimated Time: <b>${diff} min</b><br>
-     Amount: <b>₹${diff}</b>`;
 
-  onSnapshot(doc(db,"sessions",ref.id),snap=>{
+  onSnapshot(doc(db,"sessions",sessionRef.id),snap=>{
     if(!snap.exists()){
-      go(4);
+      clearInterval(timerInt);
+      alert("Session Ended");
+      location.reload();
       return;
     }
-    if(snap.data().charging){
-      startTimer(snap.data().endsAt, ref.id);
+
+    const d=snap.data();
+    if(d.charging && d.endsAt){
+      startTimer(d.endsAt);
     }
   });
-};
+}
 
-function startTimer(end, id){
-  const int=setInterval(async ()=>{
+function startTimer(end){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
     const t=end-Date.now();
-    if(t<=0){
-      clearInterval(int);
-      await deleteDoc(doc(db,"sessions",id));
-      go(4);
-      return;
-    }
+    if(t<=0) clearInterval(timerInt);
     const h=Math.floor(t/3600000);
     const m=Math.floor(t/60000)%60;
     const s=Math.floor(t/1000)%60;
     timer.textContent=
-      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+      `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
   },1000);
 }
 </script>
-
 </body>
 </html>
