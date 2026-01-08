@@ -4,32 +4,28 @@
 <meta charset="UTF-8">
 <title>SUNOVAX Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Poppins;background:#081821;color:#fff;padding:20px}
-h2{color:#ffd84d;text-align:center}
+body{margin:0;background:#081821;color:#fff;font-family:Poppins;padding:20px}
+h1{text-align:center;color:#ffd84d}
 table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{padding:10px;border-bottom:1px solid #333;text-align:center}
-button{padding:7px 12px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+th,td{padding:10px;text-align:center;border-bottom:1px solid #333}
+.btn{padding:6px 12px;border:none;border-radius:10px;cursor:pointer}
 .enable{background:#4caf50}
-.disable{background:#f44336;color:#fff}
-.timer{color:#7CFC98}
+.disable{background:#f44336}
+input{width:80px;padding:6px;border-radius:6px;border:none;text-align:center}
 </style>
 </head>
 
 <body>
-<h2>SUNOVAX – Admin Panel</h2>
+<h1>SUNOVAX Admin Panel</h1>
 
 <table>
 <thead>
 <tr>
-<th>User</th>
-<th>Status</th>
-<th>Timer</th>
-<th>PIN</th>
-<th>Action</th>
+<th>Name</th><th>Payment</th><th>Verified</th>
+<th>PIN</th><th>Action</th><th>Timer</th>
 </tr>
 </thead>
 <tbody id="rows"></tbody>
@@ -37,59 +33,65 @@ button{padding:7px 12px;border:none;border-radius:8px;font-weight:600;cursor:poi
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import {getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+  getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const app=initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
   projectId:"sunovax"
 });
-const db=getFirestore(app);
+const db = getFirestore(app);
 const ADMIN_PIN="2026";
 
 onSnapshot(collection(db,"sessions"),snap=>{
   rows.innerHTML="";
-  const list=snap.docs
-    .map(d=>({id:d.id,...d.data()}))
-    .sort((a,b)=>b.created-a.created);
-
-  list.forEach((s,i)=>{
-    rows.innerHTML+=`
-    <tr>
-      <td>User ${i+1}</td>
-      <td>${s.charging?"Charging":"Waiting"}</td>
-      <td class="timer" id="t${s.id}">--</td>
-      <td><input id="p${s.id}" type="password" style="width:70px"></td>
-      <td>
-        ${!s.charging
-          ?`<button class="enable" onclick="enable('${s.id}',${s.duration})">Enable</button>`
-          :`<button class="disable" onclick="disable('${s.id}')">Disable</button>`}
-      </td>
-    </tr>`;
-    if(s.charging) timer(s.id,s.endsAt);
-  });
+  snap.docs
+    .sort((a,b)=>b.data().createdAt-a.data().createdAt)
+    .forEach((d,i)=>{
+      const s=d.data(), id=d.id;
+      rows.innerHTML+=`
+      <tr>
+        <td>User ${i+1}</td>
+        <td>${s.paid?"Paid":"Due"}</td>
+        <td>${s.verified?"✔":"✖"}</td>
+        <td>
+          ${s.charging?"—":`<input type="password" id="p${id}">`}
+        </td>
+        <td>
+          ${!s.charging
+            ?`<button class="btn enable" onclick="en('${id}',${s.duration})">Enable</button>`
+            :`<button class="btn disable" onclick="dis('${id}')">Disable</button>`}
+        </td>
+        <td id="t${id}">--</td>
+      </tr>`;
+      if(s.charging) timer(id,s.endsAt);
+    });
 });
 
-window.enable=async(id,dur)=>{
+window.en=async(id,dur)=>{
   if(document.getElementById("p"+id).value!==ADMIN_PIN)
     return alert("Wrong PIN");
-
   await updateDoc(doc(db,"sessions",id),{
+    verified:true,
     charging:true,
     endsAt:Date.now()+dur*1000
   });
 };
 
-window.disable=async(id)=>{
+window.dis=async(id)=>{
   await deleteDoc(doc(db,"sessions",id));
 };
 
 function timer(id,end){
-  setInterval(()=>{
+  setInterval(async()=>{
     const t=end-Date.now();
-    if(t<=0) deleteDoc(doc(db,"sessions",id));
+    if(t<=0) return deleteDoc(doc(db,"sessions",id));
+    const h=Math.floor(t/3600000);
     const m=Math.floor(t/60000)%60;
     const s=Math.floor(t/1000)%60;
-    document.getElementById("t"+id).textContent=`${m}:${s}`;
+    document.getElementById("t"+id).innerText=
+      `${h.toString().padStart(2,0)}:${m.toString().padStart(2,0)}:${s.toString().padStart(2,0)}`;
   },1000);
 }
 </script>
