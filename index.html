@@ -4,89 +4,89 @@
 <meta charset="UTF-8">
 <title>SUNOVAX Charging</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
 <style>
-*{box-sizing:border-box;font-family:Poppins;}
+*{box-sizing:border-box;font-family:Poppins}
 body{
-  margin:0; min-height:100vh;
-  display:flex; justify-content:center; align-items:center;
+  margin:0;min-height:100vh;
+  display:flex;justify-content:center;align-items:center;
   background:linear-gradient(135deg,#081821,#0e2a3b);
-  color:#fff; overflow:hidden;
+  color:#fff;
 }
-.card{
-  width:360px; padding:30px;
+.page{
+  width:360px;padding:30px;
   background:rgba(255,255,255,.08);
   backdrop-filter:blur(16px);
   border-radius:24px;
   text-align:center;
+  display:none;
+  animation:fade .4s ease;
 }
-.card > div{
-  transition: all 0.5s ease;
-  opacity:1;
-}
-.hidden{opacity:0; pointer-events:none; position:absolute;}
-h1{color:#ffd84d;margin-bottom:6px;}
-.btn{
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:scale(.95)}}
+h1{color:#ffd84d;margin-bottom:6px}
+button{
   margin-top:18px;width:100%;
   padding:14px;border:none;border-radius:14px;
   background:linear-gradient(135deg,#ffd84d,#ffb703);
-  font-weight:600;cursor:pointer;
-  transition: transform 0.2s;
+  font-weight:600;font-size:16px;
 }
-.btn:hover{transform:scale(1.05);}
 input{
   width:100%;padding:12px;border:none;
-  border-radius:12px;margin-top:10px;text-align:center;
+  border-radius:12px;margin-top:10px;
 }
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <!-- STEP 1: Logo -->
-  <div id="s1">
-    <h1>SUNOVAX ☀️</h1>
-    <p>Smart • Clean • Renewable Energy</p>
-    <button class="btn" onclick="go(2)">Start Charging</button>
-  </div>
+<!-- WELCOME -->
+<div id="welcome" class="page active">
+  <h1>SUNOVAX ☀️</h1>
+  <p>Smart • Clean • Renewable Energy</p>
+  <button onclick="go('battery')">Start Charging</button>
+</div>
 
-  <!-- STEP 2: Battery Info -->
-  <div id="s2" class="hidden">
-    <h1>Battery Info</h1>
-    <input id="cur" type="number" placeholder="Current %" min="0" max="100">
-    <input id="req" type="number" placeholder="Required %" min="1" max="100">
-    <button class="btn" onclick="calc()">Continue</button>
-  </div>
+<!-- BATTERY -->
+<div id="battery" class="page">
+  <h1>Battery Info</h1>
+  <input id="cur" type="number" placeholder="Current %">
+  <input id="req" type="number" placeholder="Required %">
+  <button onclick="calc()">Continue</button>
+</div>
 
-  <!-- STEP 3: Payment -->
-  <div id="s3" class="hidden">
-    <h1>Payment</h1>
-    <p id="payText"></p>
-    <button class="btn" onclick="paid()">PAID</button>
-  </div>
+<!-- PAYMENT -->
+<div id="payment" class="page">
+  <h1>Payment</h1>
+  <p id="payText"></p>
+  <button onclick="paid()">PAID</button>
+</div>
 
-  <!-- STEP 4: Waiting -->
-  <div id="s4" class="hidden">
-    <h1>Waiting ⏳</h1>
-    <p>Waiting for admin confirmation…</p>
-  </div>
+<!-- WAITING -->
+<div id="waiting" class="page">
+  <h1>Waiting ⏳</h1>
+  <p>Waiting for admin confirmation…</p>
+</div>
 
-  <!-- STEP 5: Plug In -->
-  <div id="s5" class="hidden">
-    <h1>Plug In 🔌</h1>
-    <p id="timeText"></p>
-  </div>
+<!-- PLUG IN -->
+<div id="plugin" class="page">
+  <h1>Plug In 🔌</h1>
+  <p id="timeText"></p>
+</div>
 
-  <!-- STEP 6: Thank You -->
-  <div id="s6" class="hidden">
-    <h1>Thank You 🌞</h1>
-    <p>Charging started using clean energy.</p>
-  </div>
+<!-- THANK YOU -->
+<div id="thankyou" class="page">
+  <h1>Thank You 🌞</h1>
+  <p>Charging started using clean energy.</p>
 </div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import {getFirestore,collection,addDoc,onSnapshot,doc,getDocs} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+  getFirestore,collection,addDoc,onSnapshot,doc,getDocs
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyBYWFWFQaJZ-i4GU12tlCvLNjfY1s3aeJQ",
@@ -96,46 +96,55 @@ const db = getFirestore(app);
 
 let ref, mins=0;
 
-function go(n){
-  document.querySelectorAll(".card > div").forEach(x=>x.classList.add("hidden"));
-  document.getElementById("s"+n).classList.remove("hidden");
+/* ROUTER */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  location.hash=id;
 }
+window.go = showPage;
 
-// Calculate payment
-window.calc = ()=>{
-  const c=+cur.value, r=+req.value;
-  if(r<=c || isNaN(c)||isNaN(r)) return alert("Invalid values");
-  mins = r-c;
+window.addEventListener("load",()=>{
+  const p=location.hash.replace("#","")||"welcome";
+  showPage(p);
+});
+
+/* CALC */
+window.calc=()=>{
+  const c=+cur.value,r=+req.value;
+  if(r<=c||!c||!r) return alert("Invalid values");
+  mins=r-c;
   payText.innerHTML=`Amount to Pay: <b>₹${mins}</b>`;
-  go(3);
-}
+  showPage("payment");
+};
 
-// Paid & add session
-window.paid = async ()=>{
-  // Count existing clients for User 1, 2, 3
-  const snap = await getDocs(collection(db,"sessions"));
-  const clientNumber = snap.size + 1;
+/* PAID */
+window.paid=async()=>{
+  const snap=await getDocs(collection(db,"sessions"));
+  const userNo=snap.size+1;
 
-  ref = await addDoc(collection(db,"sessions"),{
-    name:`User ${clientNumber}`,  // Client name increments
-    company:"SUNOVAX",           // Company name fixed
+  ref=await addDoc(collection(db,"sessions"),{
+    name:`User ${userNo}`,
+    company:"SUNOVAX",
     paid:true,
     verified:false,
     charging:false,
     createdAt:Date.now(),
     duration:mins*60
   });
-  go(4);
+
+  showPage("waiting");
 
   onSnapshot(doc(db,"sessions",ref.id),s=>{
     if(!s.exists()) location.reload();
     if(s.data().charging){
-      timeText.innerHTML=`${s.data().company}, Estimated Time: <b>${mins} minutes</b>`;
-      go(5);
-      setTimeout(()=>go(6),4000);
+      timeText.innerHTML=`Estimated Time: <b>${mins} minutes</b>`;
+      showPage("plugin");
+      setTimeout(()=>showPage("thankyou"),4000);
     }
   });
-}
+};
 </script>
+
 </body>
 </html>
